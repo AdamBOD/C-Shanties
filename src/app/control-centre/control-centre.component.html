@@ -1,0 +1,8 @@
+<div class="control-centre-container row">
+    <div class="large-3 medium-3 small-3 columns"></div>
+    <div class="main-controls large-6 medium-6 small-6 columns">
+        <!-- <input class="scrubber" type="range" value="0"> -->
+        <ion-range-slider type="single" [min]="startTime" [max]="endTime" [step]="step" (onFinish)="sliderChange($event)">
+</ion-range-slider>
+    </div>
+</div>

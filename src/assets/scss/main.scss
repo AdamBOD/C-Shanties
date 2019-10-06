@@ -1,0 +1,72 @@
+@import '~ion-rangeslider/css/ion.rangeSlider.css';
+@import '~ion-rangeslider/less/skins/round.less';
+
+body {
+    background-color: #26282b;
+    app-control-centre {        
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        .control-centre-container {
+            height: 115px;
+            background-color: #26282b;
+            color: #2797d3;
+            -webkit-box-shadow: 0px -4px 3px rgba(50, 50, 50, 0.75);
+            -moz-box-shadow: 0px -4px 3px rgba(50, 50, 50, 0.75);
+            box-shadow: 0px -4px 3px rgba(50, 50, 50, 0.75);
+
+            .main-controls {
+                input[type="range"] {
+                    outline: 0;
+                    border: 0;
+                    border-radius: 500px;
+                    width: 400px;
+                    max-width: 100%;
+                    margin: 24px 0;
+                    transition: box-shadow 0.2s ease-in-out;
+                    // Chrome
+                    @media screen and (-webkit-min-device-pixel-ratio:0) {
+                        & {
+                            overflow: hidden;
+                            height: 40px;
+                            -webkit-appearance: none;
+                            background-color: #ddd;
+                        }
+                        &::-webkit-slider-runnable-track {
+                            height: 40px;
+                            -webkit-appearance: none;
+                            color: #444;
+                            margin-top: -1px;
+                            transition: box-shadow 0.2s ease-in-out;
+                        }
+                        &::-webkit-slider-thumb {
+                            width: 40px;                            
+				            -webkit-appearance: none;
+                            height: 40px;
+                            cursor: pointer;
+                            background: #2797d3;
+                            box-shadow: -340px 0 0 320px #2797d3, inset 0 0 0 40px #2797d3;                      
+                            border-radius: 50%;
+                            transition: box-shadow 0.2s ease-in-out;
+                            position: relative;
+                            // top: 1px;
+
+                            &:hover {
+                                width: 50px;
+                                height: 50px;                                
+                            }
+                        }
+
+                        &:active::-webkit-slider-thumb {
+                            background: #444;
+                            box-shadow: -340px 0 0 320px #444, inset 0 0 0 3px #444;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+}
