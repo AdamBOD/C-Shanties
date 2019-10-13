@@ -2,6 +2,7 @@ import { Component, ChangeDetectorRef } from '@angular/core';
 import { IpcRenderer } from 'electron';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Howl } from 'howler';
+import { jsmediatags } from 'jsmediatags';
 
 @Component({
     selector: 'app-root',
@@ -58,8 +59,7 @@ export class AppComponent {
         var song = 'data:audio/mp3;base64,' + data;
         var sound = new Howl({
             src: [song],
-            autoplay: true,
-
+            autoplay: true
         });
 
         sound.play();
