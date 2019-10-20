@@ -1,72 +1,97 @@
-@import '~ion-rangeslider/css/ion.rangeSlider.css';
-@import '~ion-rangeslider/less/skins/round.less';
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@import '~@angular/material/theming';
+// Plus imports for other components in your app.
 
-body {
-    background-color: #26282b;
-    app-control-centre {        
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat-core();
 
-        .control-centre-container {
-            height: 115px;
-            background-color: #26282b;
-            color: #2797d3;
-            -webkit-box-shadow: 0px -4px 3px rgba(50, 50, 50, 0.75);
-            -moz-box-shadow: 0px -4px 3px rgba(50, 50, 50, 0.75);
-            box-shadow: 0px -4px 3px rgba(50, 50, 50, 0.75);
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$C-Shanties-primary: mat-palette($mat-indigo);
+$C-Shanties-accent: mat-palette($mat-pink, A200, A100, A400);
 
-            .main-controls {
-                input[type="range"] {
-                    outline: 0;
-                    border: 0;
-                    border-radius: 500px;
-                    width: 400px;
-                    max-width: 100%;
-                    margin: 24px 0;
-                    transition: box-shadow 0.2s ease-in-out;
-                    // Chrome
-                    @media screen and (-webkit-min-device-pixel-ratio:0) {
-                        & {
-                            overflow: hidden;
-                            height: 40px;
-                            -webkit-appearance: none;
-                            background-color: #ddd;
-                        }
-                        &::-webkit-slider-runnable-track {
-                            height: 40px;
-                            -webkit-appearance: none;
-                            color: #444;
-                            margin-top: -1px;
-                            transition: box-shadow 0.2s ease-in-out;
-                        }
-                        &::-webkit-slider-thumb {
-                            width: 40px;                            
-				            -webkit-appearance: none;
-                            height: 40px;
-                            cursor: pointer;
-                            background: #2797d3;
-                            box-shadow: -340px 0 0 320px #2797d3, inset 0 0 0 40px #2797d3;                      
-                            border-radius: 50%;
-                            transition: box-shadow 0.2s ease-in-out;
-                            position: relative;
-                            // top: 1px;
+// The warn palette is optional (defaults to red).
+$C-Shanties-warn: mat-palette($mat-red);
 
-                            &:hover {
-                                width: 50px;
-                                height: 50px;                                
+// Create the theme object (a Sass map containing all of the palettes).
+$C-Shanties-theme: mat-light-theme($C-Shanties-primary, $C-Shanties-accent, $C-Shanties-warn);
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include angular-material-theme($C-Shanties-theme);
+
+@import 'colours.scss';
+html {
+    height: 100%;
+
+    body {
+        height: 100%;
+        background-color: $primary-background-colour;
+        margin: 0;
+    
+        app-control-centre {        
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+    
+            .control-centre-container {
+                height: 115px;
+                background-color: $primary-background-colour;
+                color: $control-centre-colour;
+                -webkit-box-shadow: 0px -4px 1px $primary-border-colour;
+                -moz-box-shadow: 0px -4px 1px $primary-border-colour;
+                box-shadow: 0px -4px 1px $primary-border-colour;
+    
+                .main-controls {
+                    justify-content: center;
+                    align-items: center;
+
+                    mat-slider {
+                        width: 100%;
+                        // transform: scale(1.75);
+    
+                        .mat-slider-wrapper {
+                            .mat-slider-track-fill {
+                                background-color: $secondary-background-colour;
+                                border-radius: 1px;
+                            }
+    
+                            .mat-slider-thumb-container {
+                                opacity: 0;
+                                -webkit-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+                                -moz-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+                                -ms-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+                                -o-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+                                transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+    
+                                .mat-slider-thumb {
+                                    background-color: $control-centre-colour;
+                                    
+                                }
                             }
                         }
-
-                        &:active::-webkit-slider-thumb {
-                            background: #444;
-                            box-shadow: -340px 0 0 320px #444, inset 0 0 0 3px #444;
+    
+                        &:hover {
+                            .mat-slider-wrapper {
+                                .mat-slider-track-fill {
+                                    background-color: $control-centre-colour;
+                                }
+    
+                                .mat-slider-thumb-container {
+                                    opacity: 1;
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+        
     }
-    
 }

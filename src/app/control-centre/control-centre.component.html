@@ -1,8 +1,9 @@
 <div class="control-centre-container row">
-    <div class="large-3 medium-3 small-3 columns"></div>
-    <div class="main-controls large-6 medium-6 small-6 columns">
-        <!-- <input class="scrubber" type="range" value="0"> -->
-        <ion-range-slider type="single" [min]="startTime" [max]="endTime" [step]="step" (onFinish)="sliderChange($event)">
-</ion-range-slider>
+    <div class="col-lg-3 md-3 col-sm-3"></div>
+    <div class="main-controls col-lg-6 col-md-6 col-sm-6 row">
+        <label class="col-lg-1">{{ startTime }}</label>
+        <mat-slider class="col-lg-10" min="0" max="220" step="1" value="0"></mat-slider>
+        <label class="col-lg-1">{{ endTime }}</label>
     </div>
+    <div class="col-lg-3 md-3 col-sm-3"></div>
 </div>
