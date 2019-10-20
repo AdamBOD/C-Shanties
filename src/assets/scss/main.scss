@@ -49,42 +49,78 @@ html {
                 box-shadow: 0px -4px 1px $primary-border-colour;
     
                 .main-controls {
-                    justify-content: center;
-                    align-items: center;
+                    .seekbar {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: center;
+                        align-items: center;
 
-                    mat-slider {
-                        width: 100%;
-                        // transform: scale(1.75);
-    
-                        .mat-slider-wrapper {
-                            .mat-slider-track-fill {
-                                background-color: $secondary-background-colour;
-                                border-radius: 1px;
+                        span {
+                            font-size: 18px;
+                            padding-left: 10px;
+                            padding-right: 10px;
+                            line-height: 2.6;
+                        }
+
+                        mat-slider {
+                            width: 80%;
+        
+                            .mat-slider-wrapper {
+                                .mat-slider-track-fill {
+                                    background-color: $secondary-background-colour;
+                                    border-radius: 1px;
+                                }
+        
+                                .mat-slider-thumb-container {
+                                    opacity: 0;
+                                    cursor: pointer;
+                                    -webkit-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+                                    -moz-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+                                    -ms-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+                                    -o-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+                                    transition: opacity .4s cubic-bezier(.25,.8,.25,1);
+        
+                                    .mat-slider-thumb {
+                                        background-color: $control-centre-colour;
+                                        cursor: pointer;                                        
+                                    }
+                                }
                             }
-    
-                            .mat-slider-thumb-container {
-                                opacity: 0;
-                                -webkit-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
-                                -moz-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
-                                -ms-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
-                                -o-transition: opacity .4s cubic-bezier(.25,.8,.25,1);
-                                transition: opacity .4s cubic-bezier(.25,.8,.25,1);
-    
-                                .mat-slider-thumb {
-                                    background-color: $control-centre-colour;
-                                    
+        
+                            &:hover {
+                                .mat-slider-wrapper {
+                                    .mat-slider-track-fill {
+                                        background-color: $control-centre-colour;
+                                    }
+        
+                                    .mat-slider-thumb-container {
+                                        opacity: 1;
+                                    }
                                 }
                             }
                         }
-    
-                        &:hover {
-                            .mat-slider-wrapper {
-                                .mat-slider-track-fill {
-                                    background-color: $control-centre-colour;
-                                }
-    
-                                .mat-slider-thumb-container {
-                                    opacity: 1;
+                    }
+
+                    .media-controls {
+                        div {
+                            text-align: center;
+                            user-select: none;
+
+                            &.invisible {
+                                display: none;
+                            }
+
+                            i {
+                                font-size: 40px;
+                                cursor: pointer;
+                                -webkit-transition: text-shadow 0.1s ease-in-out;
+                                -moz-transition: text-shadow 0.1s ease-in-out;
+                                -ms-transition: text-shadow 0.1s ease-in-out;
+                                -o-transition: text-shadow 0.1s ease-in-out;
+                                transition: text-shadow 0.1s ease-in-out;
+
+                                &:hover {
+                                    text-shadow: 0 0 15px;
                                 }
                             }
                         }
