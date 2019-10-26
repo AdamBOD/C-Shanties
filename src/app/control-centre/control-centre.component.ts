@@ -26,14 +26,6 @@ export class ControlCentreComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    // window.setInterval(() => {
-    //   if (this.playing) {
-    //     console.log(this.currentTime);
-    //     this.currentTime += 0.1;
-    //     this.seekbar.value = this.currentTime;
-    //   }
-    // }, 100)
-
     this.controlCentreEventsService.songData.subscribe(songData => this.setupControlCentre(songData))
     this.controlCentreEventsService.songNodeObject.subscribe(songNodeObject => this.configureProgressListener(songNodeObject))
     this.controlCentreEventsService.playStateToggle.subscribe(playState => this.playing = playState);
@@ -66,7 +58,9 @@ export class ControlCentreComponent implements OnInit {
   }
 
   public expandControlCentre(event): void {
-    this.controlCentreExpanded = true;
-    this.controlCentreEventsService.emitControlCentreExpandedChange(true);
+    // this.controlCentreExpanded = true;
+    // this.controlCentreEventsService.emitControlCentreExpandedChange(true);
+    this.controlCentreExpanded = !this.controlCentreExpanded;
+    this.controlCentreEventsService.emitControlCentreExpandedChange(this.controlCentreExpanded);
   }
 }

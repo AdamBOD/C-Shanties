@@ -73,6 +73,13 @@ export class AudioPlayerService {
             onpause: () => {
                 this.controlCentreEventsService.emitPlayStateToggle(false);
             },
+            onend: () => {
+                var sendData = {
+                    filePath: './src/electron/Dreams & Nightmares (ft Lil Peep).mp3'
+                };
+
+                this.fetchSong(sendData)
+            },
             autoplay: true
         });
     }

@@ -1,19 +1,23 @@
+<!-- <div class="album-art-background-container"> -->
+    <img class="album-art-background" [src]="imageData">
+<!-- </div> -->
+
 <div class="control-centre-container row">
-    <div class="col-lg-3 md-3 col-sm-3 info-container row">
-        <div class="col-lg-3 album-art-container">
+    <div class="info-container row" [ngClass]="{'col-lg-12 col-md-12 col-sm-12': controlCentreExpanded, 'col-lg-3 col-md-3 col-sm-3': !controlCentreExpanded}">
+        <div class="album-art-container" [ngClass]="{'col-lg-12': controlCentreExpanded, 'col-lg-3': !controlCentreExpanded}">
             <img class="album-art" [src]="imageData" (click)="expandControlCentre($event)">
         </div>
-        <div class="col-lg-6 offset-3 song-info-container">
+        <div class="song-info-container" [ngClass]="{'col-lg-12': controlCentreExpanded, 'col-lg-6 offset-3': !controlCentreExpanded}">
             <div class="row">
-                <span class="songName">{{ songName }}</span>
+                <span class="songName" [ngClass]="{'col-lg-12': controlCentreExpanded}">{{ songName }}</span>
             </div>
 
             <div class="row">
-                <span class="artistName">{{ artistName }}</span>
+                <span class="artistName" [ngClass]="{'col-lg-12': controlCentreExpanded}">{{ artistName }}</span>
             </div>
         </div>
     </div>
-    <div class="main-controls col-lg-6 col-md-6 col-sm-6">
+    <div class="main-controls" [ngClass]="{'col-lg-12 col-md-12 col-sm-12': controlCentreExpanded, 'col-lg-6 col-md-6 col-sm-6': !controlCentreExpanded}">
         <div class="seekbar row">
             <span>{{ startTime }}</span>
             <mat-slider min="0" max="220" step="0.1" value="0" #seekbar></mat-slider>
@@ -35,5 +39,5 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-3 md-3 col-sm-3"></div>
+    <div [ngClass]="{'col-lg-12 col-md-12 col-sm-12': controlCentreExpanded, 'col-lg-3 col-md-3 col-sm-3': !controlCentreExpanded}"></div>
 </div>
