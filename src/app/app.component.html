@@ -2,7 +2,6 @@
 <button (click)="clickButton($event)">Test</button>
 
 <!-- <div *ngFor="let img of images"> -->
-  <img height="500px" width="500px" [src]="imageData">
-  <app-control-centre></app-control-centre>
+  <app-control-centre [ngClass]="{'expanded': controlCentreExpanded}"></app-control-centre>
 <!-- </div> -->
 <router-outlet></router-outlet>

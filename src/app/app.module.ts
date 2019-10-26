@@ -6,6 +6,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ControlCentreComponent } from './control-centre/control-centre.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ControlCentreEventsService } from './shared/services/control-centre-events.service';
+import { AudioPlayerService } from './shared/services/audio-player.service';
+import { AudioPlayerEventsService } from './shared/services/audio-player-events.service';
 
 @NgModule({
   declarations: [
@@ -18,7 +21,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserAnimationsModule,
     MatSliderModule
   ],
-  providers: [],
+  providers: [
+    ControlCentreEventsService,
+    AudioPlayerEventsService,
+    AudioPlayerService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

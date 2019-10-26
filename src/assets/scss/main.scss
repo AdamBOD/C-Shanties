@@ -34,11 +34,17 @@ html {
         background-color: $primary-background-colour;
         margin: 0;
     
-        app-control-centre {        
+        app-control-centre {
+            height: 115px;
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
+            transition: height 0.4s ease-in-out;
+
+            &.expanded {
+                height: 100%;
+            }
     
             .control-centre-container {
                 height: 115px;
@@ -47,6 +53,16 @@ html {
                 -webkit-box-shadow: 0px -4px 1px $primary-border-colour;
                 -moz-box-shadow: 0px -4px 1px $primary-border-colour;
                 box-shadow: 0px -4px 1px $primary-border-colour;
+
+                .info-container {
+                    .album-art-container {
+                        .album-art {
+                            cursor: pointer;
+                            width: 115px;
+                            height: 115px;
+                        }
+                    }
+                }
     
                 .main-controls {
                     .seekbar {
