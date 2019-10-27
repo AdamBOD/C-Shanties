@@ -5,10 +5,13 @@ const jsmediatags = require("jsmediatags");
 const fs = require("fs");
 const path = require("path");
 const url = require("url");
+//const sqlite = require("sqlite3");
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
-let window; 
+let window;
+let repository;
+let queue = [];
 
 app.on("ready", () => {
     window = new BrowserWindow({ 
@@ -26,6 +29,20 @@ app.on("ready", () => {
             slashes: true
           })
     );
+
+    /*repository = new sqlite.Database("./src/electron/repo.db", (err) => {
+        if (err)
+            console.log("Couldn't connect to DB");
+        else
+            console.log("Connected to DB");
+    });*/
+
+    var libraryPath = "C:/Users/adamb/OneDrive/Music";
+    indexLibrary(libraryPath);
+});
+
+ipcMain.on("fetchQueue", (event, arg) => {
+    window.webContents.send("queueFetched", queue);
 });
 
 ipcMain.on("fetchFile", (event, arg) => {
@@ -46,7 +63,7 @@ ipcMain.on("fetchFile", (event, arg) => {
             onSuccess: (idData) => {
                 returnData.metaData = idData;
 
-                window.webContents.send("filesFetched", returnData);
+                window.webContents.send("fileFetched", returnData);
             },
             onError: (err) => {
                 console.log (err);
@@ -54,3 +71,27 @@ ipcMain.on("fetchFile", (event, arg) => {
         });
     });    
 });
+
+function indexLibrary(path) {
+    console.log (`Indexing: ${path}`)
+    var regex = /^.*\.(mp3|flac|aac|m4a)$/;
+    if (fs.existsSync(path)) {
+        var files = fs.readdirSync(path);
+        files.forEach(file => {
+            if (regex.exec(file)) {
+                indexTrack(path + `/${file}`)
+            }
+            else {                
+                if (fs.lstatSync(path + `/${file}`).isDirectory()) {                    
+                    console.log (`Path is a directory: ${path}/${file}`);
+                    indexLibrary(path + `/${file}`)
+                }
+            }
+        });
+    }
+}
+
+function indexTrack(path) {
+    //console.log (`Processing: ${path}`);
+    queue.push(path);
+}

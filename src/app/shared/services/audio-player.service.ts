@@ -10,7 +10,8 @@ export class AudioPlayerService {
     private ipc: IpcRenderer;
     private songMetaData: any;
     private song: Howl;
-
+    private queue: string[];
+    private queuePosition: number = 0;
 
     constructor (
         private controlCentreEventsService: ControlCentreEventsService,
@@ -34,24 +35,50 @@ export class AudioPlayerService {
             console.log(this.song)
             console.log(result)
             if (this.song != null)
-                result ? this.song.play() : this.song.pause()
-            // if (result)
-            //     this.song.play();
-            // else 
-            //     this.song.pause();
-        });//result ? this.song.play() : this.song.pause());
+                result ? this.song.play() : this.song.pause();
+        });
 
-        this.ipc.on('filesFetched', (event, data) => {
+        this.controlCentreEventsService.trackChange.subscribe(result => {
+            if (result) {
+                this.queuePosition--;
+            }
+            else {
+                this.queuePosition++;
+            }
+
+            var sendData = {
+                filePath: this.queue[this.queuePosition]
+            }
+            this.fetchSong(sendData);
+        });
+
+        this.ipc.on('queueFetched', (event, data) => {
+            this.queue = data;
+            var sendData = {
+                filePath: data[this.queuePosition]
+            }
+            this.fetchSong(sendData);
+        });
+
+        this.ipc.on('fileFetched', (event, data) => {
             this.songMetaData = data.metaData;
             this.configureSong(data.fileContent);
         });
+    }
+
+    public fetchQueue(): void {
+        this.ipc.send('fetchQueue', null);
     }
 
     public fetchSong(sendData: any): void {        
         this.ipc.send('fetchFile', sendData);
     }
 
-    public configureSong(songData: any): void {        
+    public configureSong(songData: any): void {
+        if (this.song != null) {
+            this.song.unload();
+        }
+
         songData = 'data:audio/mp3;base64,' + songData;
         this.song = new Howl({
             src: [songData],
@@ -74,8 +101,9 @@ export class AudioPlayerService {
                 this.controlCentreEventsService.emitPlayStateToggle(false);
             },
             onend: () => {
+                this.queuePosition++;
                 var sendData = {
-                    filePath: './src/electron/Dreams & Nightmares (ft Lil Peep).mp3'
+                    filePath: this.queue[this.queuePosition]
                 };
 
                 this.fetchSong(sendData)

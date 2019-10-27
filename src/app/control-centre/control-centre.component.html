@@ -3,17 +3,17 @@
 <!-- </div> -->
 
 <div class="control-centre-container row">
-    <div class="info-container row" [ngClass]="{'col-lg-12 col-md-12 col-sm-12': controlCentreExpanded, 'col-lg-3 col-md-3 col-sm-3': !controlCentreExpanded}">
-        <div class="album-art-container" [ngClass]="{'col-lg-12': controlCentreExpanded, 'col-lg-3': !controlCentreExpanded}">
+    <div class="info-container" [ngClass]="{'col-lg-12 col-md-12 col-sm-12': controlCentreExpanded, 'col-lg-3 col-md-3 col-sm-3 row': !controlCentreExpanded}">
+        <div class="album-art-container" [ngClass]="{'col-lg-12': controlCentreExpanded, 'col-lg-4': !controlCentreExpanded}">
             <img class="album-art" [src]="imageData" (click)="expandControlCentre($event)">
         </div>
-        <div class="song-info-container" [ngClass]="{'col-lg-12': controlCentreExpanded, 'col-lg-6 offset-3': !controlCentreExpanded}">
-            <div class="row">
-                <span class="songName" [ngClass]="{'col-lg-12': controlCentreExpanded}">{{ songName }}</span>
+        <div class="song-info-container" [ngClass]="{'col-lg-12': controlCentreExpanded, 'col-lg-7': !controlCentreExpanded}">
+            <div class="row song-name-container">
+                <span class="song-name" [ngClass]="{'col-lg-12': controlCentreExpanded}">{{ songName }}</span>
             </div>
 
-            <div class="row">
-                <span class="artistName" [ngClass]="{'col-lg-12': controlCentreExpanded}">{{ artistName }}</span>
+            <div class="row artist-name-container">
+                <span class="artist-name" [ngClass]="{'col-lg-12': controlCentreExpanded}">{{ artistName }}</span>
             </div>
         </div>
     </div>
@@ -25,7 +25,7 @@
         </div>
         
         <div class="media-controls row">
-            <div class="col-lg-2 offset-3">
+            <div class="col-lg-2 offset-3" (click)="skipTrack($event)">
                 <i class="material-icons">skip_previous</i>
             </div>
             <div class="col-lg-2" [ngClass]="{'invisible': !playing}" (click)="togglePlay($event)">
@@ -34,7 +34,7 @@
             <div class="col-lg-2" [ngClass]="{'invisible': playing}" (click)="togglePlay($event)">
                 <i class="material-icons">play_circle_outline</i>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-2" (click)="backTrack($event)">
                 <i class="material-icons">skip_next</i>
             </div>
         </div>

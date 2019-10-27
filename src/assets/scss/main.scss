@@ -51,15 +51,16 @@ html {
 
                 .control-centre-container {
                     height: 70%;
-                    min-width: 935px;
+                    min-width: 820px;
                     min-height: 790px;
-                    background-color: transparent;
-                    left: 25%;
-                    right: 25%;
+                    left: 30%;
+                    right: 30%;
                     top: 15%;
                     bottom: 15%;
+                    background-color: transparent;
                     box-shadow: none;
                     background-color: $primary-opaque-background-colour;
+                    padding: 15px;
 
                     .info-container {
                         .album-art-container {
@@ -82,8 +83,10 @@ html {
                                 span {
                                     text-align: center;
                                 }
+                            }
 
-                                .songName {
+                            .song-name-container {
+                                .song-name {
                                     font-size: 25px;
                                 }
                             }
@@ -127,6 +130,45 @@ html {
                             height: 115px;
                             transition: width 0.4s ease-in-out;
                             transition: height 0.4s ease-in-out;
+                        }
+                    }
+
+                    .song-info-container {
+                        .row {
+                            min-height: 50%;
+                            overflow-x: hidden;
+
+                            span {
+                                padding-right: 10px;
+                                white-space: nowrap;
+                                overflow-x: hidden;
+                                text-overflow: ellipsis;
+                                /*animation: scrollText 15s normal linear;
+                                animation-play-state: paused;*/
+                                transition: width 1s linear;
+                                max-width: 100%;
+                                float: right;
+
+                                &:hover {
+                                    /*animation-play-state: running;*/
+                                    max-width: unset;
+                                    width: auto;
+                                }
+                            }
+
+                            @keyframes scrollText {
+                                to {
+                                  transform: translateX(-100%);
+                                }
+                              }
+                        }
+
+                        .song-name-container {
+                            align-items: center;
+                            
+                            .song-name {
+                                font-size: 20px;
+                            }
                         }
                     }
                 }

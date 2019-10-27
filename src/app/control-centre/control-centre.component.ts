@@ -58,9 +58,15 @@ export class ControlCentreComponent implements OnInit {
   }
 
   public expandControlCentre(event): void {
-    // this.controlCentreExpanded = true;
-    // this.controlCentreEventsService.emitControlCentreExpandedChange(true);
     this.controlCentreExpanded = !this.controlCentreExpanded;
     this.controlCentreEventsService.emitControlCentreExpandedChange(this.controlCentreExpanded);
+  }
+
+  public backTrack(event): void {
+    this.controlCentreEventsService.emitTrackChange(false);
+  }
+
+  public skipTrack(event): void {
+    this.controlCentreEventsService.emitTrackChange(true);
   }
 }

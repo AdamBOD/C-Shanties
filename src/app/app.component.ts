@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
             filePath: './src/electron/Lil Peep - Cut Myself (Slowed).mp3'
         };
         //this.ipc.send('fetchFile', sendData);
-        this.audioPlayerService.fetchSong(sendData);
+        this.audioPlayerService.fetchQueue();
 
         // this.ipc.on('filesFetched', (event, data) => {
         //     this.renderImage(data.metaData);
