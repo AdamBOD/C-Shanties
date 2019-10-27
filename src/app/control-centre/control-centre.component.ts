@@ -37,7 +37,7 @@ export class ControlCentreComponent implements OnInit {
 
   private setupControlCentre(songData: SongDataViewModel): void {
     this.seekbar.max = songData.duration;
-    this.endTime = `${Math.floor(songData.duration / 60)}:${songData.duration % 60 < 10 ? "0" + (songData.duration % 60).toString() : songData.duration % 60}`
+    this.endTime = this.parseTime(songData.duration);
     this.currentTime = 0;
     this.songName = songData.title;
     this.artistName = songData.artist
@@ -52,6 +52,7 @@ export class ControlCentreComponent implements OnInit {
 
   private configureProgressListener(songNodeObject: HTMLAudioElement): void {
     songNodeObject.addEventListener('timeupdate', (event: any) => {
+      this.startTime = this.parseTime(Math.round(songNodeObject.currentTime));
       this.seekbar.value = parseFloat(songNodeObject.currentTime.toFixed(1));
       this.changeDetector.detectChanges();
     });
@@ -68,5 +69,9 @@ export class ControlCentreComponent implements OnInit {
 
   public skipTrack(event): void {
     this.controlCentreEventsService.emitTrackChange(true);
+  }
+
+  public parseTime(time: number): string {
+    return `${Math.floor(time / 60)}:${time % 60 < 10 ? "0" + (time % 60).toString() : time % 60}`;
   }
 }
