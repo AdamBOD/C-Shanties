@@ -6,8 +6,8 @@ const fs = require("fs");
 const path = require("path");
 const url = require("url");
 //const sqlite = require("sqlite3");
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
+const app = electron.app;
+const BrowserWindow = electron.BrowserWindow;
 
 let window;
 let repository;
@@ -46,7 +46,6 @@ ipcMain.on("fetchQueue", (event, arg) => {
 });
 
 ipcMain.on("fetchFile", (event, arg) => {
-    // jsmediatags.read("./src/electron/Lil Peep - Cut Myself (Slowed).mp3", {
     var filePath = arg.filePath;
     var returnData = {};
 
@@ -62,7 +61,6 @@ ipcMain.on("fetchFile", (event, arg) => {
         jsmediatags.read(filePath, {
             onSuccess: (idData) => {
                 returnData.metaData = idData;
-
                 window.webContents.send("fileFetched", returnData);
             },
             onError: (err) => {

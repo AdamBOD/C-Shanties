@@ -39,11 +39,15 @@ export class AudioPlayerService {
         });
 
         this.controlCentreEventsService.trackChange.subscribe(result => {
+            if (this.queuePosition == 0 || this.queuePosition == this.queue.length - 1) {
+                return;
+            }
+
             if (result) {
-                this.queuePosition--;
+                this.queuePosition++;
             }
             else {
-                this.queuePosition++;
+                this.queuePosition--;
             }
 
             var sendData = {
@@ -54,6 +58,7 @@ export class AudioPlayerService {
 
         this.ipc.on('queueFetched', (event, data) => {
             this.queue = data;
+            console.log(this.queue);
             var sendData = {
                 filePath: data[this.queuePosition]
             }
@@ -61,6 +66,7 @@ export class AudioPlayerService {
         });
 
         this.ipc.on('fileFetched', (event, data) => {
+            console.log (data);
             this.songMetaData = data.metaData;
             this.configureSong(data.fileContent);
         });
@@ -79,10 +85,19 @@ export class AudioPlayerService {
             this.song.unload();
         }
 
-        songData = 'data:audio/mp3;base64,' + songData;
+        var extensionExtraction = /[^\\]*\.(\w+)$/;
+        var extension = extensionExtraction.exec(this.queue[this.queuePosition])[1];
+
+        if (extension != 'mp3') {
+            extension = 'mp4';
+        }
+
+        songData = `data:audio/${extension};base64,${songData}`;
+        console.log (songData);
         this.song = new Howl({
             src: [songData],
             html5: true,
+            format: ['m4a'],
             onload: () => {
                 let newSongData = new SongDataViewModel(
                     this.songMetaData.tags.title,
@@ -101,6 +116,10 @@ export class AudioPlayerService {
                 this.controlCentreEventsService.emitPlayStateToggle(false);
             },
             onend: () => {
+                if (this.queuePosition == this.queue.length - 1) {
+                    return;
+                }
+
                 this.queuePosition++;
                 var sendData = {
                     filePath: this.queue[this.queuePosition]
@@ -108,12 +127,21 @@ export class AudioPlayerService {
 
                 this.fetchSong(sendData)
             },
+            onloaderror: (id, err) => {
+                console.error(err);
+                console.error(id);
+            },
+            onplayerror: (id, err) => {
+                console.error(id);
+                console.error(err);
+            },
             autoplay: true
         });
     }
 
     private passAudioNodeObject(): void {
         const node: HTMLAudioElement = (this.song as any)._sounds[0]._node;
+        console.log (node);
         this.controlCentreEventsService.emitSongNodeObject(node);
     }
 }

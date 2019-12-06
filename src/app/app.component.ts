@@ -40,9 +40,9 @@ export class AppComponent implements OnInit {
     }
 
     clickButton(event) {
-        var sendData = {
-            filePath: './src/electron/Lil Peep - Cut Myself (Slowed).mp3'
-        };
+        //var sendData = {
+        //    filePath: './src/electron/Lil Peep - Cut Myself (Slowed).mp3'
+        //};
         //this.ipc.send('fetchFile', sendData);
         this.audioPlayerService.fetchQueue();
 
