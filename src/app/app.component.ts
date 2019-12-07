@@ -40,26 +40,7 @@ export class AppComponent implements OnInit {
     }
 
     clickButton(event) {
-        //var sendData = {
-        //    filePath: './src/electron/Lil Peep - Cut Myself (Slowed).mp3'
-        //};
-        //this.ipc.send('fetchFile', sendData);
-        this.audioPlayerService.fetchQueue();
-
-        // this.ipc.on('filesFetched', (event, data) => {
-        //     this.renderImage(data.metaData);
-        //     console.log (data.metaData);
-        //     let newSongData = new SongDataViewModel(
-        //         data.metaData.tags.title,
-        //         data.metaData.tags.artist,
-        //         data.metaData.tags.album,
-        //         data.metaData.tags.artist,
-        //         data.metaData.tags.picture
-        //     );
-        //     console.log (newSongData);
-        //     this.controlCentreEventsService.songData.emit(newSongData);
-        //     this.startSong(data.fileContent);
-        // });
+        this.ipc.send('setLocation', null);
     }
 
     renderImage (data) {

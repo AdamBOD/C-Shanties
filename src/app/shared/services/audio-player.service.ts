@@ -39,21 +39,21 @@ export class AudioPlayerService {
         this.audioPlayerEventsService.playStateToggle.subscribe(result => {
             if (this.song != null)
                 result ? this.song.play() : this.song.pause();
+            else 
+                this.fetchQueue();
         });
 
         this.controlCentreEventsService.trackChange.subscribe(result => {
             if (result) {
-                if (this.queuePosition == this.queue.length - 1) {
+                if (this.queuePosition == this.queue.length - 1)
                     return;
-                }
 
                 this.queuePosition++;
             }
             else {
                 if (this.progress <= 3500) {
-                    if (this.queuePosition == 0) {
+                    if (this.queuePosition == 0)
                         return;
-                    }
 
                     this.queuePosition--;
                 }
@@ -75,7 +75,7 @@ export class AudioPlayerService {
 
             this.queue = this.shuffle(this.queue);
             console.log(this.queue);
-            
+
             var sendData = {
                 filePath: data[this.queuePosition]
             }

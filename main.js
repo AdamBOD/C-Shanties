@@ -52,26 +52,34 @@ function init () {
         indexLibrary(settings.filePath);
     }
     else {
-        dialog.showOpenDialog({ properties: ["openDirectory"]})
-            .then(result => {
-                if (!result.canceled) {
-                    var path = result.filePaths[0];
-                    settings = {
-                        filePath: path
-                    };
-    
-                    let settingsData = JSON.stringify(settings);
-                    fs.writeFileSync("settings.json", settingsData);
-
-                    console.log(settings);
-                    indexLibrary(settings.filePath);
-                }
-            })
-            .catch(err => {
-                console.log(err);
-            });
+        setLocation();
     }
 }
+
+function setLocation () {
+    dialog.showOpenDialog({ properties: ["openDirectory"]})
+        .then(result => {
+            if (!result.canceled) {
+                var path = result.filePaths[0];
+                settings = {
+                    filePath: path
+                };
+
+                let settingsData = JSON.stringify(settings);
+                fs.writeFileSync("settings.json", settingsData);
+
+                console.log(settings);
+                indexLibrary(settings.filePath);
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        });
+}
+
+ipcMain.on("setLocation", (event, arg) => {
+    setLocation();
+});
 
 ipcMain.on("fetchQueue", (event, arg) => {
     window.webContents.send("queueFetched", queue);
