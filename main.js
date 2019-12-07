@@ -1,6 +1,5 @@
-
 const electron = require("electron");
-const { ipcMain } = require("electron");
+const { ipcMain, dialog } = require("electron");
 const jsmediatags = require("jsmediatags");
 const fs = require("fs");
 const path = require("path");
@@ -12,6 +11,7 @@ const BrowserWindow = electron.BrowserWindow;
 let window;
 let repository;
 let queue = [];
+let settings = {};
 
 app.on("ready", () => {
     window = new BrowserWindow({ 
@@ -30,6 +30,12 @@ app.on("ready", () => {
           })
     );
 
+    init();
+
+});
+
+function init () {
+
     /*repository = new sqlite.Database("./src/electron/repo.db", (err) => {
         if (err)
             console.log("Couldn't connect to DB");
@@ -37,9 +43,35 @@ app.on("ready", () => {
             console.log("Connected to DB");
     });*/
 
-    var libraryPath = "C:/Users/adamb/OneDrive/Music";
-    indexLibrary(libraryPath);
-});
+
+    if (fs.existsSync("./settings.json")) {
+        settings = require("./settings.json");
+
+        console.log(settings);
+        var libraryPath = "C:/Users/adamb/OneDrive/Music";
+        indexLibrary(settings.filePath);
+    }
+    else {
+        dialog.showOpenDialog({ properties: ["openDirectory"]})
+            .then(result => {
+                if (!result.canceled) {
+                    var path = result.filePaths[0];
+                    settings = {
+                        filePath: path
+                    };
+    
+                    let settingsData = JSON.stringify(settings);
+                    fs.writeFileSync("settings.json", settingsData);
+
+                    console.log(settings);
+                    indexLibrary(settings.filePath);
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }
+}
 
 ipcMain.on("fetchQueue", (event, arg) => {
     window.webContents.send("queueFetched", queue);
@@ -71,8 +103,9 @@ ipcMain.on("fetchFile", (event, arg) => {
 });
 
 function indexLibrary(path) {
-    console.log (`Indexing: ${path}`)
-    var regex = /^.*\.(mp3|flac|aac|m4a)$/;
+    console.log(`Indexing ${path}`);
+    //var regex = /^.*\.(mp3|flac|aac|m4a)$/; -- M4A Not Working
+    var regex = /^.*\.(mp3|flac|aac)$/;
     if (fs.existsSync(path)) {
         var files = fs.readdirSync(path);
         files.forEach(file => {
@@ -80,8 +113,7 @@ function indexLibrary(path) {
                 indexTrack(path + `/${file}`)
             }
             else {                
-                if (fs.lstatSync(path + `/${file}`).isDirectory()) {                    
-                    console.log (`Path is a directory: ${path}/${file}`);
+                if (fs.lstatSync(path + `/${file}`).isDirectory()) {
                     indexLibrary(path + `/${file}`)
                 }
             }
@@ -90,6 +122,5 @@ function indexLibrary(path) {
 }
 
 function indexTrack(path) {
-    //console.log (`Processing: ${path}`);
     queue.push(path);
 }

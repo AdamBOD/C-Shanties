@@ -8,10 +8,15 @@ import { AudioPlayerEventsService } from './audio-player-events.service';
 @Injectable()
 export class AudioPlayerService {
     private ipc: IpcRenderer;
+    private songData: any;
     private songMetaData: any;
     private song: Howl;
     private queue: string[];
+    private receivedQueue: string[];
     private queuePosition: number = 0;
+    private progressTimer;
+    private progressTimerPaused: boolean;
+    private progress = 0;
 
     constructor (
         private controlCentreEventsService: ControlCentreEventsService,
@@ -32,22 +37,29 @@ export class AudioPlayerService {
 
     private init(): void {
         this.audioPlayerEventsService.playStateToggle.subscribe(result => {
-            console.log(this.song)
-            console.log(result)
             if (this.song != null)
                 result ? this.song.play() : this.song.pause();
         });
 
         this.controlCentreEventsService.trackChange.subscribe(result => {
-            if (this.queuePosition == 0 || this.queuePosition == this.queue.length - 1) {
-                return;
-            }
-
             if (result) {
+                if (this.queuePosition == this.queue.length - 1) {
+                    return;
+                }
+
                 this.queuePosition++;
             }
             else {
-                this.queuePosition--;
+                if (this.progress <= 3500) {
+                    if (this.queuePosition == 0) {
+                        return;
+                    }
+
+                    this.queuePosition--;
+                }
+                else {
+                    this.restartSong();
+                }
             }
 
             var sendData = {
@@ -58,7 +70,12 @@ export class AudioPlayerService {
 
         this.ipc.on('queueFetched', (event, data) => {
             this.queue = data;
+            this.receivedQueue = data;
             console.log(this.queue);
+
+            this.queue = this.shuffle(this.queue);
+            console.log(this.queue);
+            
             var sendData = {
                 filePath: data[this.queuePosition]
             }
@@ -66,9 +83,9 @@ export class AudioPlayerService {
         });
 
         this.ipc.on('fileFetched', (event, data) => {
-            console.log (data);
             this.songMetaData = data.metaData;
-            this.configureSong(data.fileContent);
+            this.songData = data.fileContent;
+            this.configureSong(this.songData);
         });
     }
 
@@ -85,6 +102,10 @@ export class AudioPlayerService {
             this.song.unload();
         }
 
+        this.progressTimer = null;
+        this.progressTimerPaused = false;
+        this.progress = 0;
+
         var extensionExtraction = /[^\\]*\.(\w+)$/;
         var extension = extensionExtraction.exec(this.queue[this.queuePosition])[1];
 
@@ -93,11 +114,10 @@ export class AudioPlayerService {
         }
 
         songData = `data:audio/${extension};base64,${songData}`;
-        console.log (songData);
         this.song = new Howl({
             src: [songData],
             html5: true,
-            format: ['m4a'],
+            format: [extension],
             onload: () => {
                 let newSongData = new SongDataViewModel(
                     this.songMetaData.tags.title,
@@ -111,37 +131,74 @@ export class AudioPlayerService {
             },
             onplay: () => {
                 this.controlCentreEventsService.emitPlayStateToggle(true);
+                if (this.progress == 0) {
+                    this.progressTimer = setInterval(() => {
+                        if (!this.progressTimerPaused) {
+                            this.progress += 100;
+                        }
+                    }, 100);
+                }
+                else {
+                    this.progressTimerPaused = false;
+                }
+                
             },
             onpause: () => {
                 this.controlCentreEventsService.emitPlayStateToggle(false);
+                this.progressTimerPaused = true;
             },
             onend: () => {
-                if (this.queuePosition == this.queue.length - 1) {
-                    return;
-                }
-
-                this.queuePosition++;
-                var sendData = {
-                    filePath: this.queue[this.queuePosition]
-                };
-
-                this.fetchSong(sendData)
+                this.setupNextSong();
             },
             onloaderror: (id, err) => {
                 console.error(err);
-                console.error(id);
+                this.setupNextSong();
             },
             onplayerror: (id, err) => {
-                console.error(id);
                 console.error(err);
+                this.setupNextSong();
             },
             autoplay: true
         });
+    }
+
+    private setupNextSong () {
+        if (this.queuePosition == this.queue.length - 1) {
+            return;
+        }
+
+        this.progress = 0;
+        this.progressTimer = null;
+        this.queuePosition++;
+        var sendData = {
+            filePath: this.queue[this.queuePosition]
+        };
+
+        this.fetchSong(sendData);
+    }
+
+    private restartSong () {
+        this.configureSong(this.songData);
     }
 
     private passAudioNodeObject(): void {
         const node: HTMLAudioElement = (this.song as any)._sounds[0]._node;
         console.log (node);
         this.controlCentreEventsService.emitSongNodeObject(node);
+    }
+
+    /**
+    * Shuffles array in place.
+    * @param {Array} a items An array containing the items.
+    */
+    private shuffle(a) {
+        var j, x, i;
+        for (i = a.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = a[i];
+            a[i] = a[j];
+            a[j] = x;
+        }
+        return a;
     }
 }
