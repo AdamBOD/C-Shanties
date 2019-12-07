@@ -19,6 +19,7 @@ export class ControlCentreComponent implements OnInit, AfterViewInit {
     private controlCentreExpanded: boolean;
     private seekbarThumb: HTMLDivElement;
     private seekbarThumbHeld: boolean;
+    private seekbarThumbValue;
     @ViewChild('seekbar', { static: false }) seekbar: MatSlider;
 
     constructor(
@@ -35,9 +36,13 @@ export class ControlCentreComponent implements OnInit, AfterViewInit {
 
     ngAfterViewInit() {
         this.seekbarThumb = this.seekbar._elementRef.nativeElement.children[0].children[2].children[1];
-        console.log(this.seekbarThumb);
-        this.seekbarThumb.addEventListener("mousedown", () => this.seekbarThumbHeld = true, false);
-        this.seekbarThumb.addEventListener("mouseup", () => this.seekbarThumbHeld = false, false);
+        this.seekbar._elementRef.nativeElement.addEventListener("mousedown", () => this.seekbarThumbHeld = true, false);
+        this.seekbar._elementRef.nativeElement.addEventListener("mouseup", () => this.seekbarThumbHeld = false, false);
+
+        this.seekbar._elementRef.nativeElement.addEventListener("click", () => {
+            this.seekbarThumbHeld = false;
+            this.controlCentreEventsService.emitSeekChange(this.seekbarThumbValue);
+        }, false);
     }
 
     public togglePlay(event: Event): void {
@@ -66,7 +71,7 @@ export class ControlCentreComponent implements OnInit, AfterViewInit {
             if (!this.seekbarThumbHeld) {
                 this.seekbar.value = parseFloat(songNodeObject.currentTime.toFixed(1));
             }
-            
+
             this.changeDetector.detectChanges();
         });
 
@@ -84,6 +89,10 @@ export class ControlCentreComponent implements OnInit, AfterViewInit {
 
     public skipTrack(event): void {
         this.controlCentreEventsService.emitTrackChange(true);
+    }
+
+    public seekTrack(event): void {
+        this.seekbarThumbValue = event.value;
     }
 
     public parseTime(time: number): string {

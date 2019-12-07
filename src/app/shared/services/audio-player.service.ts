@@ -68,6 +68,11 @@ export class AudioPlayerService {
             this.fetchSong(sendData);
         });
 
+        this.controlCentreEventsService.seekChange.subscribe(result => {
+            this.song.seek(result);
+            this.progress = result * 1000;
+        });
+
         this.ipc.on('queueFetched', (event, data) => {
             this.queue = data;
             this.receivedQueue = data;

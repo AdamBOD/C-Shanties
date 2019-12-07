@@ -5,6 +5,7 @@ import { SongDataViewModel } from '../models/song-data.model';
 export class ControlCentreEventsService {
     public playStateToggle: EventEmitter<boolean> = new EventEmitter();
     public trackChange: EventEmitter<boolean> = new EventEmitter();
+    public seekChange: EventEmitter<number> = new EventEmitter();
     public shuffleChange: EventEmitter<boolean> = new EventEmitter();
     public repeatChange: EventEmitter<number> = new EventEmitter();
     public songData: EventEmitter<SongDataViewModel> = new EventEmitter();
@@ -19,6 +20,10 @@ export class ControlCentreEventsService {
 
     public emitTrackChange(trackChange: boolean): void {
         this.trackChange.emit(trackChange)
+    }
+    
+    public emitSeekChange(seekChange: number): void {
+        this.seekChange.emit(seekChange)
     }
 
     public emitShuffleChange(shuffleChange: boolean): void {
