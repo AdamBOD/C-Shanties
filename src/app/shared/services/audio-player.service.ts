@@ -76,10 +76,10 @@ export class AudioPlayerService {
         this.ipc.on('queueFetched', (event, data) => {
             this.queue = data;
             this.receivedQueue = data;
-            console.log(this.queue);
+            //console.log(this.queue);
 
             this.queue = this.shuffle(this.queue);
-            console.log(this.queue);
+            //console.log(this.queue);
 
             var sendData = {
                 filePath: data[this.queuePosition]
@@ -188,7 +188,6 @@ export class AudioPlayerService {
 
     private passAudioNodeObject(): void {
         const node: HTMLAudioElement = (this.song as any)._sounds[0]._node;
-        console.log (node);
         this.controlCentreEventsService.emitSongNodeObject(node);
     }
 

@@ -74,8 +74,6 @@ export class ControlCentreComponent implements OnInit, AfterViewInit {
 
             this.changeDetector.detectChanges();
         });
-
-        console.log(this.seekbar);
     }
 
     public expandControlCentre(event): void {

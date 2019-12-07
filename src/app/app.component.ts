@@ -42,29 +42,4 @@ export class AppComponent implements OnInit {
     clickButton(event) {
         this.ipc.send('setLocation', null);
     }
-
-    renderImage (data) {
-        console.log ('Rendering Image');
-        var picture = data.tags.picture;
-        var base64String = '';
-        for (var i = 0; i < picture.data.length; i++) {
-            base64String += String.fromCharCode(picture.data[i]);
-        }
-        this.imageData = 'data:' + picture.format + ';base64,' + window.btoa(base64String);        
-        this.changeDetector.detectChanges();
-        
-        console.log ('Rendered Image');
-    }
-
-    startSong (data) {
-        console.log ('Starting song');
-        var song = 'data:audio/mp3;base64,' + data;
-        var sound = new Howl({
-            src: [song]//,
-            //autoplay: true
-        });
-
-        //sound.play();
-        console.log ('Started song');
-    }
 }

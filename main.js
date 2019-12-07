@@ -46,9 +46,6 @@ function init () {
 
     if (fs.existsSync("./settings.json")) {
         settings = require("./settings.json");
-
-        console.log(settings);
-        var libraryPath = "C:/Users/adamb/OneDrive/Music";
         indexLibrary(settings.filePath);
     }
     else {
@@ -67,8 +64,6 @@ function setLocation () {
 
                 let settingsData = JSON.stringify(settings);
                 fs.writeFileSync("settings.json", settingsData);
-
-                console.log(settings);
                 indexLibrary(settings.filePath);
             }
         })
