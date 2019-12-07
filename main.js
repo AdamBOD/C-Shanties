@@ -4,7 +4,10 @@ const jsmediatags = require("jsmediatags");
 const fs = require("fs");
 const path = require("path");
 const url = require("url");
-//const sqlite = require("sqlite3");
+const sqlite = require("sqlite");
+const uuidv1 = require("uuid/v1");
+const Promise = require("bluebird");
+
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
@@ -34,15 +37,19 @@ app.on("ready", () => {
 
 });
 
-function init () {
+const openSqlitePromise = sqlite.open("./src/electron/repo.db", { Promise });
 
-    /*repository = new sqlite.Database("./src/electron/repo.db", (err) => {
-        if (err)
-            console.log("Couldn't connect to DB");
-        else
-            console.log("Connected to DB");
-    });*/
+async function init () {
+    repository = await openSqlitePromise;
+    await sqlite.close(repository);
+    // repository = new sqlite.Database("./src/electron/repo.db", (err) => {
+    //     if (err)
+    //         console.log("Couldn't connect to DB");
+    //     else
+    //         console.log("Connected to DB");
+    // });
 
+    fetchSongs();
 
     if (fs.existsSync("./settings.json")) {
         settings = require("./settings.json");
@@ -51,6 +58,19 @@ function init () {
     else {
         setLocation();
     }
+}
+
+async function fetchSongs () {
+    await openSqlite();
+    repository.get(`SELECT *
+        FROM Song`, (err, row) => {
+            if (err) {
+            console.error(err.message);
+            }
+            console.log(row);
+    });
+    
+    await closeSqlite();
 }
 
 function setLocation () {
@@ -124,6 +144,159 @@ function indexLibrary(path) {
     }
 }
 
-function indexTrack(path) {
+async function indexTrack(path) {
     queue.push(path);
+    var songData = await awaitableJsmediatags(path);
+    /*jsmediatags.read(path, {
+        onSuccess: (idData) => {
+            songData = idData;
+        },
+        onError: (err) => {
+            console.log (err);
+        }
+    }).then(() => {
+        await createSong(idData, path);
+    });*/
+    await createSong(songData, path);
+}
+
+function awaitableJsmediatags(filename) {
+    return new Promise(function(resolve, reject) {
+      jsmediatags.read(filename, {
+        onSuccess: function(tag) {
+          resolve(tag);
+        },
+        onError: function(error) {
+          reject(error);
+        }
+      });
+    });
+  }
+
+async function checkArtistExists (artist) {
+    console.log (`Checking Artist exists: ${artist}`);
+    var query = `SELECT Id, Name
+        FROM Artist
+        WHERE Name = '${artist}'`;
+    
+    await openSqlite();
+    var artist = await repository.get(query);
+    await closeSqlite();
+
+    console.log (artist);
+    return artist;
+}
+
+async function createArtist (artist) {
+    console.log (`Creating Artist: ${artist}`);
+    var artist = [uuidv1(), artist];
+
+    await openSqlite();
+    await repository.run(`INSERT INTO Artist(Id, Name) VALUES(?, ?)`, artist);
+    await closeSqlite();
+
+    artist = {
+        Id: artist[0],
+        Name: artist[1]
+    }
+    return artist;
+}
+
+async function checkAlbumExists (album, artist) {
+    // console.log (`Checking Album exists: ${album}`);
+
+    var query = `SELECT Al.Id, Al.Title, Al.Artist, Al.Year
+        FROM Album Al
+        INNER JOIN Artist Ar ON Al.Artist = Ar.Id
+        WHERE Al.Title = '${album}' AND Ar.Name = '${artist}'`;
+    
+    await openSqlite();
+    var album = await repository.get(query);
+    await closeSqlite();
+
+    return album;
+}
+
+async function createAlbum (album, artist, year) {
+    // console.log (`Creating Album: ${album} - ${artist} - ${year}`);
+    var album = [uuidv1(), album, artist, year];
+
+    await openSqlite();
+    await repository.run(`INSERT INTO Album(Id, Title, Artist, Year) VALUES(?, ?, ?, ?)`, album);
+    await closeSqlite();
+
+    album = {
+        Id: album[0],
+        Title: album,
+        Artist: artist,
+        Year: year
+    }
+    return album;
+}
+
+async function checkSongExists (path) {
+    // console.log (`Checking Song exists: ${path}`);
+    await openSqlite();
+    var song = await repository.get(`SELECT *
+                FROM Song
+                WHERE Location = '${path}'`);
+    await closeSqlite();
+
+    if (song == null)
+        return false;
+    else
+        return true;
+}
+
+async function createSong (songData, path) {
+    path = path.replace(/\\/g,"/").toString();
+    var songExists = await checkSongExists(path);
+    if (!songExists) {
+        // console.log (`Song doesn't exist ${path}`);
+        var artistExists = await checkArtistExists(songData.tags.artist);
+        var albumExists = await checkAlbumExists(songData.tags.album, songData.tags.artist);
+        var artist;
+        var album;
+
+        if (artistExists == null)
+            artist = await createArtist(songData.tags.artist);
+        else
+            artist = artistExists;
+
+        if (albumExists == null && artist != null)
+            album = await createAlbum(songData.tags.album, artist.Id, songData.tags.year);
+        else
+            album = albumExists;
+
+        if (artist != null & album != null) {
+            var song = [
+                uuidv1(),
+                songData.tags.title,
+                album.Id,
+                artist.Id,
+                songData.tags.track,
+                0,
+                0,
+                path
+            ]
+
+            console.log (`Creating Song: ${song}`);
+
+            await openSqlite();
+            await repository.run(`INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`, song);
+            await closeSqlite();
+            
+            return song;
+        }
+    }
+}
+
+async function openSqlite () {
+    repository = await sqlite.open("./src/electron/repo.db");
+    return;
+}
+
+async function closeSqlite () {
+    await sqlite.close(repository);
+    return;
 }
