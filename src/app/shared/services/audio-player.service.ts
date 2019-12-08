@@ -4,6 +4,7 @@ import { Howl } from 'howler';
 import { ControlCentreEventsService } from './control-centre-events.service';
 import { SongDataViewModel } from '../models/song-data.model';
 import { AudioPlayerEventsService } from './audio-player-events.service';
+import { TrackListEventsService } from './track-list-events.service';
 
 @Injectable()
 export class AudioPlayerService {
@@ -20,7 +21,8 @@ export class AudioPlayerService {
 
     constructor (
         private controlCentreEventsService: ControlCentreEventsService,
-        private audioPlayerEventsService: AudioPlayerEventsService
+        private audioPlayerEventsService: AudioPlayerEventsService,
+        private trackListEventsService: TrackListEventsService
     ) { 
         if ((<any>window).require) {
             try {
@@ -76,6 +78,9 @@ export class AudioPlayerService {
         this.ipc.on('queueFetched', (event, data) => {
             this.queue = data;
             this.receivedQueue = data;
+
+            this.trackListEventsService.emitTrackListReceived(this.receivedQueue);
+
             console.log(this.queue);
 
             this.queue = this.shuffle(this.queue);
