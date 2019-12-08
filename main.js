@@ -41,7 +41,7 @@ const openSqlitePromise = sqlite.open("./src/electron/repo.db", { Promise });
 
 async function init () {
     repository = await openSqlitePromise;
-    await sqlite.close(repository);
+    //await sqlite.close(repository);
     // repository = new sqlite.Database("./src/electron/repo.db", (err) => {
     //     if (err)
     //         console.log("Couldn't connect to DB");
@@ -125,39 +125,33 @@ ipcMain.on("fetchFile", (event, arg) => {
     });    
 });
 
-function indexLibrary(path) {
+async function indexLibrary(path) {
     console.log(`Indexing ${path}`);
     //var regex = /^.*\.(mp3|flac|aac|m4a)$/; -- M4A Not Working
     var regex = /^.*\.(mp3|flac|aac)$/;
     if (fs.existsSync(path)) {
         var files = fs.readdirSync(path);
-        files.forEach(file => {
+        for (i = 0; i <= files.length - 1; i++) {
+            var file = files[i]
             if (regex.exec(file)) {
-                indexTrack(path + `/${file}`)
+                console.log("Indexing Track")
+                await indexTrack(path + `/${file}`);
+                console.log ("Track Indexed")
             }
             else {                
                 if (fs.lstatSync(path + `/${file}`).isDirectory()) {
-                    indexLibrary(path + `/${file}`)
+                    indexLibrary(path + `/${file}`);
                 }
             }
-        });
+        }
     }
 }
 
 async function indexTrack(path) {
     queue.push(path);
     var songData = await awaitableJsmediatags(path);
-    /*jsmediatags.read(path, {
-        onSuccess: (idData) => {
-            songData = idData;
-        },
-        onError: (err) => {
-            console.log (err);
-        }
-    }).then(() => {
-        await createSong(idData, path);
-    });*/
     await createSong(songData, path);
+    return;
 }
 
 function awaitableJsmediatags(filename) {
@@ -179,10 +173,7 @@ async function checkArtistExists (artist) {
         FROM Artist
         WHERE Name = '${artist}'`;
     
-    // await openSqlite();
-    // var artist = await repository.get(query);
-    // await closeSqlite();
-    var artist = await getSql(query);
+    var artist = await repository.get(query);
 
     console.log (artist);
     return artist;
@@ -192,12 +183,7 @@ async function createArtist (artist) {
     console.log (`Creating Artist: ${artist}`);
     var artist = [uuidv1(), artist];
 
-    // await openSqlite();
-    // await repository.run(`INSERT INTO Artist(Id, Name) VALUES(?, ?)`, artist);
-    // await closeSqlite();
-
-    var query = `INSERT INTO Artist(Id, Name) VALUES('${uuidv1()}', '${artist}')`;
-    var result = await getSql(query);
+    await repository.run(`INSERT INTO Artist(Id, Name) VALUES(?, ?)`, artist);
 
     artist = {
         Id: artist[0],
@@ -214,11 +200,7 @@ async function checkAlbumExists (album, artist) {
         INNER JOIN Artist Ar ON Al.Artist = Ar.Id
         WHERE Al.Title = '${album}' AND Ar.Name = '${artist}'`;
     
-    // await openSqlite();
-    // var album = await repository.get(query);
-    // await closeSqlite();
-    var album = await getSql(query);
-
+    var album = await repository.get(query);
     return album;
 }
 
@@ -226,10 +208,7 @@ async function createAlbum (album, artist, year) {
     // console.log (`Creating Album: ${album} - ${artist} - ${year}`);
     var album = [uuidv1(), album, artist, year];
 
-    // await openSqlite();
-    // await repository.run(`INSERT INTO Album(Id, Title, Artist, Year) VALUES(?, ?, ?, ?)`, album);
-    // await closeSqlite();
-    var query = `INSERT INTO Album(Id, Title, Artist, Year) VALUES('${uuidv1()}', '${album}', '${artist}', '${year}')`
+    await repository.run(`INSERT INTO Album(Id, Title, Artist, Year) VALUES(?, ?, ?, ?)`, album);
 
     album = {
         Id: album[0],
@@ -242,15 +221,9 @@ async function createAlbum (album, artist, year) {
 
 async function checkSongExists (path) {
     // console.log (`Checking Song exists: ${path}`);
-    // await openSqlite();
-    // var song = await repository.get(`SELECT *
-    //             FROM Song
-    //             WHERE Location = '${path}'`);
-    // await closeSqlite();
-
-    var query = `SELECT * FROM Song WHERE Location = '${path}'`
-    
-    var song = await getSql(query);
+    var song = await repository.get(`SELECT *
+                FROM Song
+                WHERE Location = '${path}'`);
 
     if (song == null)
         return false;
@@ -292,36 +265,9 @@ async function createSong (songData, path) {
 
             console.log (`Creating Song: ${song}`);
 
-            // await openSqlite();
-            // await repository.run(`INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`, song);
-            // await closeSqlite();
+            await repository.run(`INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`, song);
             var query = `INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES('${uuidv1()}', '${songData.tags.title}', '${album.Id}', '${artist.Id}', '${songData.tags.track}', 0, 0, '${path}')`;
-            result = await getSql(query);
             return song;
         }
     }
-}
-
-async function getSql (query) {
-    var repo = await sqlite.open("./src/electron/repo.db");
-    var result = await repo.run(query) 
-    await sqlite.close(repository);
-    return result;
-}
-
-async function insertSql (query, values) {
-    var repo = await sqlite.open("./src/electron/repo.db");
-    var result = await repo.run(query, values) 
-    await sqlite.close(repository);
-    return result;
-}
-
-async function openSqlite () {
-    repository = await sqlite.open("./src/electron/repo.db");
-    return;
-}
-
-async function closeSqlite () {
-    await sqlite.close(repository);
-    return;
 }
