@@ -36,7 +36,7 @@ html {
 
         .router-outlet-container {
             width: 100%;
-            height: calc(100% - 115px);
+            height: calc(100% - 120px);
         }
 
         app-track-list {
@@ -46,8 +46,9 @@ html {
             .container {
                 height: 100%;
                 overflow-y: auto;
+                display: block;
 
-                div {
+                tr {
                     color: white;
                 }
             }

@@ -1,3 +1,13 @@
-<div class="container">
-    <div class="col-lg-12" *ngFor="let track of trackList">{{ track.SongTitle }}</div>
-</div>
+<table class="container">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Album</th>
+            <th>Artist</th>
+        </tr>
+    </thead>
+    
+    <tbody>
+        <tr *ngFor="let track of trackList" app-track [trackData]="track"></tr>
+    </tbody>
+</table>
