@@ -109,7 +109,7 @@ ipcMain.on("fetchFile", (event, arg) => {
             throw err;
         }
 
-        var base64File = new Buffer(file, 'binary').toString('base64');
+        var base64File = new Buffer(file, "binary").toString("base64");
 
         returnData.fileContent = base64File;
 
@@ -171,7 +171,7 @@ async function checkArtistExists (artist) {
     console.log (`Checking Artist exists: ${artist}`);
     var query = `SELECT Id, Name
         FROM Artist
-        WHERE Name = '${artist}'`;
+        WHERE Name = "${artist}"`;
     
     var artist = await repository.get(query);
 
@@ -198,7 +198,7 @@ async function checkAlbumExists (album, artist) {
     var query = `SELECT Al.Id, Al.Title, Al.Artist, Al.Year
         FROM Album Al
         INNER JOIN Artist Ar ON Al.Artist = Ar.Id
-        WHERE Al.Title = '${album}' AND Ar.Name = '${artist}'`;
+        WHERE Al.Title = "${album}" AND Ar.Name = "${artist}"`;
     
     var album = await repository.get(query);
     return album;
@@ -223,7 +223,7 @@ async function checkSongExists (path) {
     // console.log (`Checking Song exists: ${path}`);
     var song = await repository.get(`SELECT *
                 FROM Song
-                WHERE Location = '${path}'`);
+                WHERE Location = "${path}"`);
 
     if (song == null)
         return false;
@@ -266,7 +266,7 @@ async function createSong (songData, path) {
             console.log (`Creating Song: ${song}`);
 
             await repository.run(`INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`, song);
-            var query = `INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES('${uuidv1()}', '${songData.tags.title}', '${album.Id}', '${artist.Id}', '${songData.tags.track}', 0, 0, '${path}')`;
+            var query = `INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES("${uuidv1()}", "${songData.tags.title}", "${album.Id}", "${artist.Id}", "${songData.tags.track}", 0, 0, "${path}")`;
             return song;
         }
     }
