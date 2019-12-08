@@ -39,10 +39,31 @@ export class AudioPlayerService {
 
     private init(): void {
         this.audioPlayerEventsService.playStateToggle.subscribe(result => {
-            if (this.song != null)
+            if (this.song != null){
                 result ? this.song.play() : this.song.pause();
-            else 
-                this.fetchQueue();
+            }
+            else {
+                if (this.queue == null || this.queue.length == 0){
+                    this.fetchQueue();
+                }
+                else {
+                    var sendData = {
+                        filePath: this.queue[this.queuePosition].Location
+                    }
+        
+                    this.fetchSong(sendData);
+                }
+            }
+        });
+
+        this.audioPlayerEventsService.fetchQueue.subscribe(result => {
+            console.log ("Received request to fetch queue")
+            this.fetchQueue();
+        });
+
+        this.audioPlayerEventsService.fetchTracks.subscribe(result => {
+            console.log ("Received request to fetch tracks")
+            this.fetchTracks();
         });
 
         this.controlCentreEventsService.trackChange.subscribe(result => {
@@ -79,18 +100,14 @@ export class AudioPlayerService {
             this.queue = data;
             this.receivedQueue = data;
 
-            this.trackListEventsService.emitTrackListReceived(this.receivedQueue);
-
             console.log(this.queue);
 
             this.queue = this.shuffle(this.queue);
             //console.log(this.queue);
+        });
 
-            var sendData = {
-                filePath: this.queue[this.queuePosition].Location
-            }
-
-            this.fetchSong(sendData);
+        this.ipc.on('tracksFetched', (event, data) => {
+            this.trackListEventsService.emitTrackListReceived(data);
         });
 
         this.ipc.on('fileFetched', (event, data) => {
@@ -102,6 +119,10 @@ export class AudioPlayerService {
 
     public fetchQueue(): void {
         this.ipc.send('fetchQueue', null);
+    }
+
+    public fetchTracks(): void {
+        this.ipc.send('fetchTracks', null);
     }
 
     public fetchSong(sendData: any): void {        

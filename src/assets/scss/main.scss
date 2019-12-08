@@ -25,7 +25,12 @@ $C-Shanties-theme: mat-light-theme($C-Shanties-primary, $C-Shanties-accent, $C-S
 // that you are using.
 @include angular-material-theme($C-Shanties-theme);
 
-@import 'colours.scss';
+@import 'variables/colours.scss';
+@import 'variables/borders.scss';
+@import 'variables/paddings.scss';
+@import 'variables/font-sizes.scss';
+@import 'variables/font-weights.scss';
+@import 'variables/letter-spacings.scss';
 html {
     height: 100%;
 
@@ -45,11 +50,75 @@ html {
 
             .container {
                 height: 100%;
-                overflow-y: auto;
+                width: 80%;
+                max-width: 80%;
+                margin-right: 20px !important;
                 display: block;
+                overflow-y: auto;
+                border-collapse: separate;
+                border-spacing: 0;
 
                 tr {
                     color: white;
+                    margin: 5px 10px;
+
+                    &:last-child {
+                        td {
+                            border-bottom: none;
+                        }
+                    }
+
+                    &.hidden {
+                        th {
+                            position: unset;
+                        }
+                    }
+
+                    th {
+                        position: sticky;
+                        top: 0px;
+                        color: $track-headers-colour;
+                        padding: $track-padding;
+                        font-size: $track-headers-size;
+                        font-weight: $track-weight;
+                        letter-spacing: $track-headers-spacing;
+                        background-color: $primary-background-colour;
+                        border-bottom: $track-headers-border;
+                        
+                        &.action-column {
+                            width: 50px;
+                        }
+
+                        &.title-column {
+                            min-width: 500px;
+                        }
+
+                        &.album-column {
+                            min-width: 250px;
+                        }
+
+                        &.artist-column {
+                            width: 100%;
+                        }
+                    }
+
+                    td {
+                        width: auto;
+                        max-width: 600px;
+                        max-height: 45px;
+                        padding: $track-padding;
+                        font-size: $track-size;
+                        font-weight: $track-weight;
+                        letter-spacing: $track-spacing;
+                        border-bottom: $track-border;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        overflow: hidden;
+
+                        &:last-child {
+                            padding-right: 0px;
+                        }
+                    }
                 }
             }
         }
@@ -273,6 +342,24 @@ html {
                 }
             }
         }
-        
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+        border-radius: 5.5px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: $scroll-track-background-colour;
+        border-radius: 5.5px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: $control-centre-colour;
+        border-radius: 5.5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: $control-centre-hover-colour;
     }
 }

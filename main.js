@@ -50,6 +50,10 @@ ipcMain.on("fetchQueue", (event, arg) => {
     sendQueue();
 });
 
+ipcMain.on("fetchTracks", (event, arg) => {
+    sendTracks();
+});
+
 ipcMain.on("fetchFile", (event, arg) => {
     var filePath = arg.filePath;
     var returnData = {};
@@ -64,15 +68,6 @@ ipcMain.on("fetchFile", (event, arg) => {
         returnData.fileContent = base64File;
 
         window.webContents.send("fileFetched", returnData);
-        // jsmediatags.read(filePath, {
-        //     onSuccess: (idData) => {
-        //         returnData.metaData = idData;
-        //         window.webContents.send("fileFetched", returnData);
-        //     },
-        //     onError: (err) => {
-        //         console.log (err);
-        //     }
-        // });
     });    
 });
 
@@ -112,7 +107,6 @@ function setLocation () {
 
 async function checkIndexRequired () {
     var songCount = await repository.all(`SELECT COUNT(Id) FROM Song`);
-    console.log(songCount)
     if (songCount[0]['COUNT(Id)'] == 0)
         return true;
     else
@@ -160,6 +154,17 @@ function awaitableJsmediatags(filename) {
         }
       });
     });
+}
+
+
+async function fetchTracks () {
+    tracks = await repository.all(`
+        SELECT S.Id, S.Title AS SongTitle , S.Album, Al.Title AS AlbumTitle, S.Artist, Ar.Name AS ArtistName, S.TrackNumber, S.PlayCount, Al.Year
+        FROM Song S
+        INNER JOIN Album Al on Al.Id = S.Album
+        INNER JOIN Artist Ar on Ar.Id = S.Artist`
+    );
+    return tracks;
 }
 
 async function fetchSongs () {
@@ -292,6 +297,11 @@ async function createSong (songData, path) {
 
 function sendQueue () {
     window.webContents.send("queueFetched", queue);
+}
+
+async function sendTracks () {
+    var tracks = await fetchTracks();
+    window.webContents.send("tracksFetched", tracks);
 }
 
 async function minimiseImage (albumArtData, format, length) {

@@ -38,8 +38,4 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.controlCentreEventsService.controlCentreExpanded.subscribe((result) => this.controlCentreExpanded = result);
     }
-
-    clickButton(event) {
-        this.ipc.send('setLocation', null);
-    }
 }

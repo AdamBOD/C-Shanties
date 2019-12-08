@@ -1,9 +1,10 @@
 <table class="container">
     <thead>
-        <tr>
-            <th>Title</th>
-            <th>Album</th>
-            <th>Artist</th>
+        <tr [ngClass]="{'hidden': controlCentreExpanded}">
+            <th class="action-column"></th>
+            <th class="title-column">TITLE</th>
+            <th class="album-column">ALBUM</th>
+            <th class="artist-column">ARTIST</th>
         </tr>
     </thead>
     
