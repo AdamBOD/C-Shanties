@@ -7,13 +7,18 @@ const url = require("url");
 const sqlite = require("sqlite");
 const uuidv1 = require("uuid/v1");
 const Promise = require("bluebird");
+const btoa = require("btoa");
+const imagemin = require("imagemin");
+const imageminMozjpeg = require("imagemin-mozjpeg");
+const Jimp = require("jimp")
 
 const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
+const openSqlitePromise = sqlite.open("./src/electron/repo.db", { Promise });
 
 let window;
 let repository;
-let queue = [];
+let queue;
 let settings = {};
 
 app.on("ready", () => {
@@ -30,47 +35,60 @@ app.on("ready", () => {
             pathname: path.join(__dirname, `/dist/index.html`),
             protocol: "file:",
             slashes: true
-          })
+        })
     );
 
     init();
 
 });
 
-const openSqlitePromise = sqlite.open("./src/electron/repo.db", { Promise });
+ipcMain.on("setLocation", (event, arg) => {
+    setLocation();
+});
+
+ipcMain.on("fetchQueue", (event, arg) => {
+    sendQueue();
+});
+
+ipcMain.on("fetchFile", (event, arg) => {
+    var filePath = arg.filePath;
+    var returnData = {};
+
+    fs.readFile (filePath, (err, file) => {
+        if (err) {
+            throw err;
+        }
+
+        var base64File = new Buffer(file, "binary").toString("base64");
+
+        returnData.fileContent = base64File;
+
+        window.webContents.send("fileFetched", returnData);
+        // jsmediatags.read(filePath, {
+        //     onSuccess: (idData) => {
+        //         returnData.metaData = idData;
+        //         window.webContents.send("fileFetched", returnData);
+        //     },
+        //     onError: (err) => {
+        //         console.log (err);
+        //     }
+        // });
+    });    
+});
 
 async function init () {
     repository = await openSqlitePromise;
-    //await sqlite.close(repository);
-    // repository = new sqlite.Database("./src/electron/repo.db", (err) => {
-    //     if (err)
-    //         console.log("Couldn't connect to DB");
-    //     else
-    //         console.log("Connected to DB");
-    // });
-
-    //fetchSongs();
 
     if (fs.existsSync("./settings.json")) {
         settings = require("./settings.json");
-        indexLibrary(settings.filePath);
+        if (await checkIndexRequired())
+            indexLibrary(settings.filePath);
+        else
+            fetchSongs();
     }
     else {
         setLocation();
     }
-}
-
-async function fetchSongs () {
-    await openSqlite();
-    repository.get(`SELECT *
-        FROM Song`, (err, row) => {
-            if (err) {
-            console.error(err.message);
-            }
-            console.log(row);
-    });
-    
-    await closeSqlite();
 }
 
 function setLocation () {
@@ -92,51 +110,25 @@ function setLocation () {
         });
 }
 
-ipcMain.on("setLocation", (event, arg) => {
-    setLocation();
-});
-
-ipcMain.on("fetchQueue", (event, arg) => {
-    window.webContents.send("queueFetched", queue);
-});
-
-ipcMain.on("fetchFile", (event, arg) => {
-    var filePath = arg.filePath;
-    var returnData = {};
-
-    fs.readFile (filePath, (err, file) => {
-        if (err) {
-            throw err;
-        }
-
-        var base64File = new Buffer(file, "binary").toString("base64");
-
-        returnData.fileContent = base64File;
-
-        jsmediatags.read(filePath, {
-            onSuccess: (idData) => {
-                returnData.metaData = idData;
-                window.webContents.send("fileFetched", returnData);
-            },
-            onError: (err) => {
-                console.log (err);
-            }
-        });
-    });    
-});
+async function checkIndexRequired () {
+    var songCount = await repository.all(`SELECT COUNT(Id) FROM Song`);
+    console.log(songCount)
+    if (songCount[0]['COUNT(Id)'] == 0)
+        return true;
+    else
+        return false;
+}
 
 async function indexLibrary(path) {
     console.log(`Indexing ${path}`);
-    //var regex = /^.*\.(mp3|flac|aac|m4a)$/; -- M4A Not Working
+    
     var regex = /^.*\.(mp3|flac|aac)$/;
     if (fs.existsSync(path)) {
         var files = fs.readdirSync(path);
         for (i = 0; i <= files.length - 1; i++) {
             var file = files[i]
             if (regex.exec(file)) {
-                console.log("Indexing Track")
                 await indexTrack(path + `/${file}`);
-                console.log ("Track Indexed")
             }
             else {                
                 if (fs.lstatSync(path + `/${file}`).isDirectory()) {
@@ -145,10 +137,13 @@ async function indexLibrary(path) {
             }
         }
     }
+
+    console.log ("Finished indexing");
+
+    fetchSongs();
 }
 
 async function indexTrack(path) {
-    queue.push(path);
     var songData = await awaitableJsmediatags(path);
     await createSong(songData, path);
     return;
@@ -165,22 +160,30 @@ function awaitableJsmediatags(filename) {
         }
       });
     });
-  }
+}
+
+async function fetchSongs () {
+    queue = await repository.all(`
+        SELECT S.Id, S.Title AS SongTitle , S.Album, Al.Title AS AlbumTitle, S.Artist, Ar.Name AS ArtistName, S.TrackNumber, S.PlayCount, S.Location, Al.Year, Al.Artwork
+        FROM Song S
+        INNER JOIN Album Al on Al.Id = S.Album
+        INNER JOIN Artist Ar on Ar.Id = S.Artist`
+    );
+    sendQueue();
+}
 
 async function checkArtistExists (artist) {
-    console.log (`Checking Artist exists: ${artist}`);
+    // console.log (`Checking Artist exists: ${artist}`);
     var query = `SELECT Id, Name
         FROM Artist
         WHERE Name = "${artist}"`;
     
     var artist = await repository.get(query);
-
-    console.log (artist);
     return artist;
 }
 
 async function createArtist (artist) {
-    console.log (`Creating Artist: ${artist}`);
+    // console.log (`Creating Artist: ${artist}`);
     var artist = [uuidv1(), artist];
 
     await repository.run(`INSERT INTO Artist(Id, Name) VALUES(?, ?)`, artist);
@@ -194,7 +197,6 @@ async function createArtist (artist) {
 
 async function checkAlbumExists (album, artist) {
     // console.log (`Checking Album exists: ${album}`);
-
     var query = `SELECT Al.Id, Al.Title, Al.Artist, Al.Year
         FROM Album Al
         INNER JOIN Artist Ar ON Al.Artist = Ar.Id
@@ -204,11 +206,27 @@ async function checkAlbumExists (album, artist) {
     return album;
 }
 
-async function createAlbum (album, artist, year) {
+async function createAlbum (album, artist, year, albumArtData) {
     // console.log (`Creating Album: ${album} - ${artist} - ${year}`);
-    var album = [uuidv1(), album, artist, year];
+    var base64String = '';
+    var imageData;
+    var artLength = albumArtData.data.length;
 
-    await repository.run(`INSERT INTO Album(Id, Title, Artist, Year) VALUES(?, ?, ?, ?)`, album);
+    for (var i = 0; i < albumArtData.data.length; i++) {
+        base64String += String.fromCharCode(albumArtData.data[i]);
+    }
+
+    if (artLength <= 150000) {
+        imageData = 'data:' + albumArtData.format + ';base64,' + btoa(base64String);
+    }
+    else {
+        minimisedImage = await minimiseImage(btoa(base64String), albumArtData.format, artLength);
+        imageData = 'data:image/jpg;base64,' + minimisedImage;
+    }
+    
+    var album = [uuidv1(), album, artist, year, imageData];
+
+    await repository.run(`INSERT INTO Album(Id, Title, Artist, Year, Artwork) VALUES(?, ?, ?, ?, ?)`, album);
 
     album = {
         Id: album[0],
@@ -247,7 +265,7 @@ async function createSong (songData, path) {
             artist = artistExists;
 
         if (albumExists == null && artist != null)
-            album = await createAlbum(songData.tags.album, artist.Id, songData.tags.year);
+            album = await createAlbum(songData.tags.album, artist.Id, songData.tags.year, songData.tags.picture,);
         else
             album = albumExists;
 
@@ -263,11 +281,67 @@ async function createSong (songData, path) {
                 path
             ]
 
-            console.log (`Creating Song: ${song}`);
+            //console.log (`Creating Song: ${song}`);
 
             await repository.run(`INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`, song);
             var query = `INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES("${uuidv1()}", "${songData.tags.title}", "${album.Id}", "${artist.Id}", "${songData.tags.track}", 0, 0, "${path}")`;
             return song;
         }
+    }
+}
+
+function sendQueue () {
+    window.webContents.send("queueFetched", queue);
+}
+
+async function minimiseImage (albumArtData, format, length) {
+    var fileExtension = format.split("/")[1];
+    var tempFilePath = `./src/electron/temp.${fileExtension}`;
+
+    var minificationFactor = length - 150000;
+    minificationFactor = minificationFactor / length;
+    minificationFactor = 1 - minificationFactor;
+    
+    fs.writeFileSync(tempFilePath, albumArtData, 'base64');
+
+    if (fileExtension == "png") {
+        const image = await Jimp.read(tempFilePath);
+        image.write("./src/electron/temp.jpg");
+
+        tempFilePath = "./src/electron/temp.jpg";
+        await imagemin([tempFilePath], {
+            destination: "./src/electron/finished",
+            plugins: [
+                imageminMozjpeg({
+                    quality: 70,
+                    maxMemory: 15
+                })
+            ]
+        });
+    
+        fs.unlinkSync("./src/electron/temp.png");
+    
+        var bitmap = fs.readFileSync("./src/electron/finished/temp.jpg");
+    
+        fs.unlinkSync(tempFilePath);
+    
+        return btoa(bitmap);
+    }
+    else {
+        await imagemin([tempFilePath], {
+            destination: "./src/electron",
+            plugins: [
+                imageminMozjpeg({
+                    quality: 70,
+                    maxMemory: 15
+                })
+            ]
+        });
+
+        var bitmap = fs.readFileSync(tempFilePath);
+
+        fs.unlinkSync(tempFilePath);
+
+        return btoa(bitmap);
     }
 }

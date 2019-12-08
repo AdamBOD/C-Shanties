@@ -11,8 +11,8 @@ export class AudioPlayerService {
     private songData: any;
     private songMetaData: any;
     private song: Howl;
-    private queue: string[];
-    private receivedQueue: string[];
+    private queue: any[];
+    private receivedQueue: any[];
     private queuePosition: number = 0;
     private progressTimer;
     private progressTimerPaused: boolean;
@@ -63,7 +63,7 @@ export class AudioPlayerService {
             }
 
             var sendData = {
-                filePath: this.queue[this.queuePosition]
+                filePath: this.queue[this.queuePosition].Location
             }
             this.fetchSong(sendData);
         });
@@ -76,14 +76,15 @@ export class AudioPlayerService {
         this.ipc.on('queueFetched', (event, data) => {
             this.queue = data;
             this.receivedQueue = data;
-            //console.log(this.queue);
+            console.log(this.queue);
 
             this.queue = this.shuffle(this.queue);
             //console.log(this.queue);
 
             var sendData = {
-                filePath: data[this.queuePosition]
+                filePath: this.queue[this.queuePosition].Location
             }
+
             this.fetchSong(sendData);
         });
 
@@ -112,7 +113,7 @@ export class AudioPlayerService {
         this.progress = 0;
 
         var extensionExtraction = /[^\\]*\.(\w+)$/;
-        var extension = extensionExtraction.exec(this.queue[this.queuePosition])[1];
+        var extension = extensionExtraction.exec(this.queue[this.queuePosition].Location)[1];
 
         if (extension != 'mp3') {
             extension = 'mp4';
@@ -125,11 +126,11 @@ export class AudioPlayerService {
             format: [extension],
             onload: () => {
                 let newSongData = new SongDataViewModel(
-                    this.songMetaData.tags.title,
-                    this.songMetaData.tags.artist,
-                    this.songMetaData.tags.album,
+                    this.queue[this.queuePosition].SongTitle,
+                    this.queue[this.queuePosition].ArtistName,
+                    this.queue[this.queuePosition].AlbumTitle,
                     Math.round(this.song.duration()),
-                    this.songMetaData.tags.picture
+                    this.queue[this.queuePosition].Artwork
                 );
                 this.controlCentreEventsService.emitSongData(newSongData);
                 this.passAudioNodeObject();     
@@ -176,7 +177,7 @@ export class AudioPlayerService {
         this.progressTimer = null;
         this.queuePosition++;
         var sendData = {
-            filePath: this.queue[this.queuePosition]
+            filePath: this.queue[this.queuePosition].Location
         };
 
         this.fetchSong(sendData);
