@@ -59,8 +59,7 @@ html {
                 border-spacing: 0;
 
                 tr {
-                    color: white;
-                    margin: 5px 10px;
+                    color: #fff;
 
                     &:last-child {
                         td {
@@ -118,8 +117,65 @@ html {
                         &:last-child {
                             padding-right: 0px;
                         }
+
+                        &.playing {
+                            color: $control-centre-colour;
+                        }
+
+                        &.media-control {
+                            padding: 0px 35px 0px 5px;
+
+                            i {
+                                font-size: 30px;
+                                vertical-align: middle;
+                                display: none;
+                                cursor: pointer;
+                                -webkit-transition: text-shadow 0.1s ease-in-out;
+                                -moz-transition: text-shadow 0.1s ease-in-out;
+                                -ms-transition: text-shadow 0.1s ease-in-out;
+                                -o-transition: text-shadow 0.1s ease-in-out;
+                                transition: text-shadow 0.1s ease-in-out;
+
+                                &.visible {
+                                    display: block;
+                                }
+
+                                &.playing {
+                                    color: $control-centre-colour;
+                                }
+
+                                &:hover {
+                                    text-shadow: 0 0 15px;
+                                }
+                            }
+                        }
                     }
                 }
+            }
+        }
+
+        app-sidebar {
+            width: 18%;
+            position: fixed;
+            top: 0;
+            bottom: 110px;
+            left: 0;
+            transition: height 0.4s ease-in-out;
+
+            .sidebar-container {
+                // height: 120px;
+                background-color: $primary-background-colour;
+                color: $control-centre-colour;
+                transition: background-color 0.4s ease-in-out;
+                -webkit-box-shadow: 4px 0px 0px $primary-border-colour;
+                -moz-box-shadow: 4px 0px 0px $primary-border-colour;
+                box-shadow: 4px 0px 0px $primary-border-colour;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                z-index: 1;
             }
         }
     

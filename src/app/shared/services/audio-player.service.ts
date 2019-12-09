@@ -57,12 +57,10 @@ export class AudioPlayerService {
         });
 
         this.audioPlayerEventsService.fetchQueue.subscribe(result => {
-            console.log ("Received request to fetch queue")
             this.fetchQueue();
         });
 
         this.audioPlayerEventsService.fetchTracks.subscribe(result => {
-            console.log ("Received request to fetch tracks")
             this.fetchTracks();
         });
 
@@ -103,7 +101,12 @@ export class AudioPlayerService {
             console.log(this.queue);
 
             this.queue = this.shuffle(this.queue);
-            //console.log(this.queue);
+        
+            var sendData = {
+                filePath: this.queue[this.queuePosition].Location
+            }
+    
+            this.fetchSong(sendData);
         });
 
         this.ipc.on('tracksFetched', (event, data) => {
@@ -159,6 +162,7 @@ export class AudioPlayerService {
                     this.queue[this.queuePosition].Artwork
                 );
                 this.controlCentreEventsService.emitSongData(newSongData);
+                this.trackListEventsService.emitCurrentlyPlayingSongChanged(this.queue[this.queuePosition].Id);
                 this.passAudioNodeObject();     
             },
             onplay: () => {

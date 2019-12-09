@@ -13,13 +13,15 @@ import { AudioPlayerEventsService } from './shared/services/audio-player-events.
 import { TrackListComponent } from './track-list/track-list.component';
 import { TrackListEventsService } from './shared/services/track-list-events.service';
 import { TrackComponent } from './track/track.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ControlCentreComponent,
     TrackListComponent,
-    TrackComponent
+    TrackComponent,
+    SidebarComponent
   ],
   imports: [
     BrowserModule,

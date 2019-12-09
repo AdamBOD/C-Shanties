@@ -1,4 +1,7 @@
-<td></td>
-<td>{{ trackData.SongTitle }}</td>
-<td>{{ trackData.AlbumTitle }}</td>
-<td>{{ trackData.ArtistName }}</td>
+<td class="media-control">
+    <i class="material-icons" [ngClass]="{'playing': currentlyPlaying, 'visible': playing}">pause_circle_outline</i>
+    <i class="material-icons" [ngClass]="{'playing': currentlyPlaying, 'visible': !playing}">play_circle_outline</i>
+</td>
+<td [ngClass]="{'playing': currentlyPlaying}">{{ trackData.SongTitle }}</td>
+<td [ngClass]="{'playing': currentlyPlaying}">{{ trackData.AlbumTitle }}</td>
+<td [ngClass]="{'playing': currentlyPlaying}">{{ trackData.ArtistName }}</td>

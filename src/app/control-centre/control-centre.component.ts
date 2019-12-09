@@ -55,13 +55,6 @@ export class ControlCentreComponent implements OnInit, AfterViewInit {
         this.currentTime = 0;
         this.songName = songData.title;
         this.artistName = songData.artist
-
-        /*var albumArtData = songData.albumArt
-        var base64String = '';
-        for (var i = 0; i < albumArtData.data.length; i++) {
-            base64String += String.fromCharCode(albumArtData.data[i]);
-        }*/
-        // this.imageData = 'data:' + albumArtData.format + ';base64,' + window.btoa(base64String);
         this.imageData = songData.albumArt;
     }
 

@@ -162,8 +162,10 @@ async function fetchTracks () {
         SELECT S.Id, S.Title AS SongTitle , S.Album, Al.Title AS AlbumTitle, S.Artist, Ar.Name AS ArtistName, S.TrackNumber, S.PlayCount, Al.Year
         FROM Song S
         INNER JOIN Album Al on Al.Id = S.Album
-        INNER JOIN Artist Ar on Ar.Id = S.Artist`
+        INNER JOIN Artist Ar on Ar.Id = S.Artist
+        ORDER BY S.Album, S.Artist`
     );
+
     return tracks;
 }
 
@@ -172,8 +174,10 @@ async function fetchSongs () {
         SELECT S.Id, S.Title AS SongTitle , S.Album, Al.Title AS AlbumTitle, S.Artist, Ar.Name AS ArtistName, S.TrackNumber, S.PlayCount, S.Location, Al.Year, Al.Artwork
         FROM Song S
         INNER JOIN Album Al on Al.Id = S.Album
-        INNER JOIN Artist Ar on Ar.Id = S.Artist`
+        INNER JOIN Artist Ar on Ar.Id = S.Artist
+        ORDER BY S.Album, S.Artist`
     );
+
     sendQueue();
 }
 
