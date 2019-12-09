@@ -9,6 +9,6 @@
     </thead>
     
     <tbody>
-        <tr *ngFor="let track of trackList" app-track [trackData]="track" [currentlyPlaying]="track.Id == currentPlayingSong"></tr>
+        <tr *ngFor="let track of trackList; let trackIndex = index" app-track [trackData]="track" [currentlyPlaying]="track.Id == currentPlayingSong"></tr>
     </tbody>
 </table>

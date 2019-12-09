@@ -163,7 +163,7 @@ async function fetchTracks () {
         FROM Song S
         INNER JOIN Album Al on Al.Id = S.Album
         INNER JOIN Artist Ar on Ar.Id = S.Artist
-        ORDER BY S.Album, S.Artist`
+        ORDER BY S.Artist, S.Album`
     );
 
     return tracks;
@@ -175,7 +175,7 @@ async function fetchSongs () {
         FROM Song S
         INNER JOIN Album Al on Al.Id = S.Album
         INNER JOIN Artist Ar on Ar.Id = S.Artist
-        ORDER BY S.Album, S.Artist`
+        ORDER BY S.Artist, S.Album`
     );
 
     sendQueue();

@@ -23,17 +23,17 @@
         </div>
         
         <div class="media-controls row">
-            <div class="col-lg-2 offset-3" (click)="backTrack($event)">
-                <i class="material-icons">skip_previous</i>
+            <div class="col-lg-2 offset-3">
+                <i class="material-icons" (click)="backTrack($event)">skip_previous</i>
             </div>
-            <div class="col-lg-2" [ngClass]="{'invisible': !playing}" (click)="togglePlay($event)">
-                <i class="material-icons">pause_circle_outline</i>
+            <div class="col-lg-2" [ngClass]="{'invisible': !playing}">
+                <i class="material-icons" (click)="togglePlay($event)">pause_circle_outline</i>
             </div>
-            <div class="col-lg-2" [ngClass]="{'invisible': playing}" (click)="togglePlay($event)">
-                <i class="material-icons">play_circle_outline</i>
+            <div class="col-lg-2" [ngClass]="{'invisible': playing}">
+                <i class="material-icons" (click)="togglePlay($event)">play_circle_outline</i>
             </div>
-            <div class="col-lg-2" (click)="skipTrack($event)">
-                <i class="material-icons">skip_next</i>
+            <div class="col-lg-2">
+                <i class="material-icons" (click)="skipTrack($event)">skip_next</i>
             </div>
         </div>
     </div>

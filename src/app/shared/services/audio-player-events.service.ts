@@ -3,6 +3,7 @@ import { Injectable, EventEmitter } from "@angular/core";
 @Injectable()
 export class AudioPlayerEventsService {
     public playStateToggle: EventEmitter<boolean> = new EventEmitter();
+    public playSong: EventEmitter<any> = new EventEmitter();
     public fetchQueue: EventEmitter<boolean> = new EventEmitter();
     public fetchTracks: EventEmitter<boolean> = new EventEmitter();
 
@@ -16,5 +17,9 @@ export class AudioPlayerEventsService {
     
     public emitFetchTracks(): void {
         this.fetchTracks.emit(true);
+    }
+
+    public emitPlaySong(songData: any) {
+        this.playSong.emit(songData);
     }
 }

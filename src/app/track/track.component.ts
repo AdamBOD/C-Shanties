@@ -29,6 +29,14 @@ export class TrackComponent implements OnInit, OnChanges {
     }
 
     public togglePlay(event: Event): void {
-        this.audioPlayerEventsService.emitPlayStateToggle(!this.playing);
+        if (this.currentlyPlaying) {
+            this.audioPlayerEventsService.emitPlayStateToggle(!this.playing);
+        }
+        else {
+            var songData = {
+                Id: this.trackData.Id
+            }
+            this.audioPlayerEventsService.emitPlaySong(songData);
+        }
     }
 }

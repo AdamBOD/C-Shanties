@@ -10,7 +10,6 @@ import { TrackListEventsService } from './track-list-events.service';
 export class AudioPlayerService {
     private ipc: IpcRenderer;
     private songData: any;
-    private songMetaData: any;
     private song: Howl;
     private queue: any[];
     private receivedQueue: any[];
@@ -18,6 +17,8 @@ export class AudioPlayerService {
     private progressTimer;
     private progressTimerPaused: boolean;
     private progress = 0;
+
+    private requestedSong: string;
 
     constructor (
         private controlCentreEventsService: ControlCentreEventsService,
@@ -50,10 +51,19 @@ export class AudioPlayerService {
                     var sendData = {
                         filePath: this.queue[this.queuePosition].Location
                     }
-        
+
                     this.fetchSong(sendData);
                 }
             }
+        });
+
+        this.audioPlayerEventsService.playSong.subscribe(result => {
+            this.requestedSong = result.Id;
+
+            if (this.queue == null || this.queue.length == 0)
+                this.fetchQueue();
+            else
+                this.configureQueue();
         });
 
         this.audioPlayerEventsService.fetchQueue.subscribe(result => {
@@ -97,16 +107,7 @@ export class AudioPlayerService {
         this.ipc.on('queueFetched', (event, data) => {
             this.queue = data;
             this.receivedQueue = data;
-
-            console.log(this.queue);
-
-            this.queue = this.shuffle(this.queue);
-        
-            var sendData = {
-                filePath: this.queue[this.queuePosition].Location
-            }
-    
-            this.fetchSong(sendData);
+            this.configureQueue();
         });
 
         this.ipc.on('tracksFetched', (event, data) => {
@@ -114,7 +115,6 @@ export class AudioPlayerService {
         });
 
         this.ipc.on('fileFetched', (event, data) => {
-            this.songMetaData = data.metaData;
             this.songData = data.fileContent;
             this.configureSong(this.songData);
         });
@@ -128,8 +128,31 @@ export class AudioPlayerService {
         this.ipc.send('fetchTracks', null);
     }
 
-    public fetchSong(sendData: any): void {        
+    public fetchSong(sendData: any): void {
         this.ipc.send('fetchFile', sendData);
+    }
+
+    public configureQueue() {
+        var index = null;
+        if (this.requestedSong != "") {
+            var queueLength = this.receivedQueue.length;
+            for (var i = 0; i < queueLength; i++) {
+                if (this.receivedQueue[i].Id == this.requestedSong) {
+                    index = i;
+                    this.requestedSong = "";
+                    break;
+                }
+            }
+        }
+
+        this.queue = this.shuffle(this.receivedQueue, index);
+        this.queuePosition = 0;
+
+        var sendData = {
+            filePath: this.queue[this.queuePosition].Location
+        }
+
+        this.fetchSong(sendData);
     }
 
     public configureSong(songData: any): void {
@@ -226,7 +249,14 @@ export class AudioPlayerService {
     * Shuffles array in place.
     * @param {Array} a items An array containing the items.
     */
-    private shuffle(a) {
+    private shuffle(a, b = null) {
+        var firstSong;
+
+        if (b != null) {
+            firstSong = a[b];
+            a.splice(b, 1);
+        }
+
         var j, x, i;
         for (i = a.length - 1; i > 0; i--) {
             j = Math.floor(Math.random() * (i + 1));
@@ -234,6 +264,11 @@ export class AudioPlayerService {
             a[i] = a[j];
             a[j] = x;
         }
+
+        if (b != null && firstSong != null) {
+            a.unshift(firstSong);
+        }
+
         return a;
     }
 }

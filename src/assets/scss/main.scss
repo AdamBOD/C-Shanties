@@ -61,15 +61,27 @@ html {
                 tr {
                     color: #fff;
 
-                    &:last-child {
-                        td {
-                            border-bottom: none;
-                        }
-                    }
-
                     &.hidden {
                         th {
                             position: unset;
+                        }
+                    }
+
+                    &:hover {
+                        td {
+                            background-color: $track-hover-background-colour;
+
+                            &.media-control {
+                                div {
+                                    opacity: 1;
+                                }
+                            }
+                        }
+                    }
+
+                    &:last-child {
+                        td {
+                            border-bottom: none;
                         }
                     }
 
@@ -114,38 +126,48 @@ html {
                         white-space: nowrap;
                         overflow: hidden;
 
-                        &:last-child {
-                            padding-right: 0px;
-                        }
-
                         &.playing {
                             color: $control-centre-colour;
+                        }
+
+                        &:last-child {
+                            padding-right: 0px;
                         }
 
                         &.media-control {
                             padding: 0px 35px 0px 5px;
 
-                            i {
-                                font-size: 30px;
-                                vertical-align: middle;
-                                display: none;
-                                cursor: pointer;
-                                -webkit-transition: text-shadow 0.1s ease-in-out;
-                                -moz-transition: text-shadow 0.1s ease-in-out;
-                                -ms-transition: text-shadow 0.1s ease-in-out;
-                                -o-transition: text-shadow 0.1s ease-in-out;
-                                transition: text-shadow 0.1s ease-in-out;
-
-                                &.visible {
-                                    display: block;
+                            &.playing {
+                                div {
+                                    opacity: 1;
                                 }
+                            }
 
-                                &.playing {
-                                    color: $control-centre-colour;
-                                }
+                            div {
+                                opacity: 0;
 
-                                &:hover {
-                                    text-shadow: 0 0 15px;
+                                i {
+                                    font-size: 30px;
+                                    vertical-align: middle;
+                                    display: none;
+                                    cursor: pointer;
+                                    -webkit-transition: text-shadow 0.1s ease-in-out;
+                                    -moz-transition: text-shadow 0.1s ease-in-out;
+                                    -ms-transition: text-shadow 0.1s ease-in-out;
+                                    -o-transition: text-shadow 0.1s ease-in-out;
+                                    transition: text-shadow 0.1s ease-in-out;
+    
+                                    &.visible {
+                                        display: block;
+                                    }
+    
+                                    &.playing {
+                                        color: $control-centre-colour;
+                                    }
+    
+                                    &:hover {
+                                        text-shadow: 0 0 15px;
+                                    }
                                 }
                             }
                         }

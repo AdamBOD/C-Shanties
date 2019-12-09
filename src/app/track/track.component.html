@@ -1,6 +1,8 @@
-<td class="media-control">
-    <i class="material-icons" [ngClass]="{'playing': currentlyPlaying, 'visible': playing}">pause_circle_outline</i>
-    <i class="material-icons" [ngClass]="{'playing': currentlyPlaying, 'visible': !playing}">play_circle_outline</i>
+<td class="media-control" [ngClass]="{'playing': currentlyPlaying}">
+    <div>
+        <i class="material-icons" [ngClass]="{'playing': currentlyPlaying, 'visible': playing}" (click)="togglePlay($event)">pause_circle_outline</i>
+        <i class="material-icons" [ngClass]="{'playing': currentlyPlaying, 'visible': !playing}" (click)="togglePlay($event)">play_circle_outline</i>
+    </div>
 </td>
 <td [ngClass]="{'playing': currentlyPlaying}">{{ trackData.SongTitle }}</td>
 <td [ngClass]="{'playing': currentlyPlaying}">{{ trackData.AlbumTitle }}</td>
