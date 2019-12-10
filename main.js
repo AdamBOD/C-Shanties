@@ -1,5 +1,5 @@
 const electron = require("electron");
-const { ipcMain, dialog } = require("electron");
+const { ipcMain, dialog, globalShortcut, systemPreferences } = require("electron");
 const jsmediatags = require("jsmediatags");
 const fs = require("fs");
 const path = require("path");
@@ -37,6 +37,25 @@ app.on("ready", () => {
             slashes: true
         })
     );
+
+    const isTrusted = systemPreferences.isTrustedAccessibilityClient(true);
+    // console.log("Is Trusted Accessibility Client: ", isTrusted);
+
+    var previousRegistered = globalShortcut.register('MediaPreviousTrack', function () {
+        window.webContents.send("mediaPreviousTrack", null);
+    });
+
+    var playRegistered = globalShortcut.register('MediaPlayPause', () => {
+        window.webContents.send("mediaPlayPause", null);
+    });
+
+    var nextRegistered = globalShortcut.register('MediaNextTrack', () => {
+        window.webContents.send("mediaNextTrack", null);
+    });
+
+    var stopRegistered = globalShortcut.register('MediaStop', function () {
+        window.webContents.send("mediaStop", null);
+    });
 
     init();
 

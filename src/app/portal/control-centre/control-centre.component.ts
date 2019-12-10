@@ -1,8 +1,8 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
-import { ControlCentreEventsService } from '../shared/services/control-centre-events.service';
-import { SongDataViewModel } from '../shared/models/song-data.model';
+import { ControlCentreEventsService } from '../../shared/services/control-centre-events.service';
+import { SongDataViewModel } from '../../shared/models/song-data.model';
 import { MatSlider } from '@angular/material/slider';
-import { AudioPlayerEventsService } from '../shared/services/audio-player-events.service';
+import { AudioPlayerEventsService } from '../../shared/services/audio-player-events.service';
 
 @Component({
     selector: 'app-control-centre',
@@ -31,7 +31,10 @@ export class ControlCentreComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.controlCentreEventsService.songData.subscribe(songData => this.setupControlCentre(songData))
         this.controlCentreEventsService.songNodeObject.subscribe(songNodeObject => this.configureProgressListener(songNodeObject))
-        this.controlCentreEventsService.playStateToggle.subscribe(playState => this.playing = playState);
+        this.controlCentreEventsService.playStateToggle.subscribe(playState => {
+            this.playing = playState;
+            this.changeDetector.detectChanges();
+        });
     }
 
     ngAfterViewInit() {

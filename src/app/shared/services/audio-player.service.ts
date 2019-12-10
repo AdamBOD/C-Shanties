@@ -75,28 +75,7 @@ export class AudioPlayerService {
         });
 
         this.controlCentreEventsService.trackChange.subscribe(result => {
-            if (result) {
-                if (this.queuePosition == this.queue.length - 1)
-                    return;
-
-                this.queuePosition++;
-            }
-            else {
-                if (this.progress <= 3500) {
-                    if (this.queuePosition == 0)
-                        return;
-
-                    this.queuePosition--;
-                }
-                else {
-                    this.restartSong();
-                }
-            }
-
-            var sendData = {
-                filePath: this.queue[this.queuePosition].Location
-            }
-            this.fetchSong(sendData);
+            this.handleTrackChange(result);
         });
 
         this.controlCentreEventsService.seekChange.subscribe(result => {
@@ -118,21 +97,61 @@ export class AudioPlayerService {
             this.songData = data.fileContent;
             this.configureSong(this.songData);
         });
+
+        this.ipc.on('mediaPreviousTrack', (event, data) => {
+            this.handleTrackChange(false);
+        });
+
+        this.ipc.on('mediaPlayPause', (event, data) => {
+            if (this.progressTimerPaused)
+                this.song.play();
+            else
+                this.song.pause();
+        });
+
+        this.ipc.on('mediaNextTrack', (event, data) => {
+            this.handleTrackChange(true);
+        });
     }
 
-    public fetchQueue(): void {
+    private fetchQueue(): void {
         this.ipc.send('fetchQueue', null);
     }
 
-    public fetchTracks(): void {
+    private fetchTracks(): void {
         this.ipc.send('fetchTracks', null);
     }
 
-    public fetchSong(sendData: any): void {
+    private fetchSong(sendData: any): void {
         this.ipc.send('fetchFile', sendData);
     }
 
-    public configureQueue() {
+    private handleTrackChange(trackChangeState: boolean) {
+        if (trackChangeState) {
+            if (this.queuePosition == this.queue.length - 1)
+                return;
+
+            this.queuePosition++;
+        }
+        else {
+            if (this.progress <= 3500) {
+                if (this.queuePosition == 0)
+                    return;
+
+                this.queuePosition--;
+            }
+            else {
+                this.restartSong();
+            }
+        }
+
+        var sendData = {
+            filePath: this.queue[this.queuePosition].Location
+        }
+        this.fetchSong(sendData);
+    }
+
+    private configureQueue() {
         var index = null;
         if (this.requestedSong != "") {
             var queueLength = this.receivedQueue.length;
@@ -155,7 +174,7 @@ export class AudioPlayerService {
         this.fetchSong(sendData);
     }
 
-    public configureSong(songData: any): void {
+    private configureSong(songData: any): void {
         if (this.song != null) {
             this.song.unload();
         }

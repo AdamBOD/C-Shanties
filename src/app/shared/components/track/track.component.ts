@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ChangeDetectorRef, OnChanges } from '@angular/core';
-import { AudioPlayerEventsService } from '../shared/services/audio-player-events.service';
+import { ControlCentreEventsService } from '../../services/control-centre-events.service';
+import { AudioPlayerEventsService } from '../../services/audio-player-events.service';
 
 @Component({
     selector: '[app-track]',
@@ -11,12 +12,13 @@ export class TrackComponent implements OnInit, OnChanges {
     private playing: boolean;
 
     constructor(
+        private controlCentreEventsService: ControlCentreEventsService,
         private audioPlayerEventsService: AudioPlayerEventsService,
         private changeDetector: ChangeDetectorRef
     ) { }
 
     ngOnInit() {
-        this.audioPlayerEventsService.playStateToggle.subscribe(playState => {
+        this.controlCentreEventsService.playStateToggle.subscribe(playState => {
             if (this.currentlyPlaying) {
                 this.playing = playState;
                 this.changeDetector.detectChanges();

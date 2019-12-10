@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { TrackListEventsService } from '../shared/services/track-list-events.service';
-import { AudioPlayerEventsService } from '../shared/services/audio-player-events.service';
-import { ControlCentreEventsService } from '../shared/services/control-centre-events.service';
+import { TrackListEventsService } from '../../services/track-list-events.service';
+import { AudioPlayerEventsService } from '../../services/audio-player-events.service';
+import { ControlCentreEventsService } from '../../services/control-centre-events.service';
 
 @Component({
     selector: 'app-track-list',
