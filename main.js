@@ -38,7 +38,8 @@ app.on("ready", () => {
         })
     );
 
-    const isTrusted = systemPreferences.isTrustedAccessibilityClient(true);
+    // TO-DO - Add platform check for OS X here
+    // const isTrusted = systemPreferences.isTrustedAccessibilityClient(true);
     // console.log("Is Trusted Accessibility Client: ", isTrusted);
 
     var previousRegistered = globalShortcut.register('MediaPreviousTrack', function () {
@@ -91,6 +92,7 @@ ipcMain.on("fetchFile", (event, arg) => {
 });
 
 async function init () {
+    app.setAppUserModelId(process.execPath);
     repository = await openSqlitePromise;
 
     if (fs.existsSync("./settings.json")) {

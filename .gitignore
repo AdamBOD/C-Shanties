@@ -46,3 +46,4 @@ testem.log
 Thumbs.db
 settings.json
 *.db
+src/electron/temp.jpg
