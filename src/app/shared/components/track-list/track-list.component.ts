@@ -9,6 +9,7 @@ import { ControlCentreEventsService } from '../../services/control-centre-events
 })
 export class TrackListComponent implements OnInit, AfterViewInit {
     private trackList;
+    private tracksLoaded: boolean;
     private controlCentreExpanded: boolean;
     private currentPlayingSong: string;
 
@@ -22,6 +23,7 @@ export class TrackListComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.trackListEventsService.trackListReceived.subscribe(trackList => {
             this.trackList = trackList;
+            this.tracksLoaded = true;
             this.changeDetector.detectChanges();
         });
 

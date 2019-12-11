@@ -1,4 +1,4 @@
-<table class="container">
+<table class="container" [ngClass]="{'invisible': !tracksLoaded}">
     <thead>
         <tr [ngClass]="{'hidden': controlCentreExpanded}">
             <th class="action-column"></th>
@@ -12,3 +12,7 @@
         <tr *ngFor="let track of trackList; let trackIndex = index" app-track [trackData]="track" [currentlyPlaying]="track.Id == currentPlayingSong"></tr>
     </tbody>
 </table>
+
+<div class="loading-container" [ngClass]="{'invisible': tracksLoaded}">
+    <img class="loading-icon" src="./assets/svg/Loading.svg">
+</div>

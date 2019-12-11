@@ -20,6 +20,9 @@ let window;
 let repository;
 let queue;
 let settings = {};
+let indexingInProgress = false;
+let queueRequested = false;
+let tracksRequested = false;
 
 app.on("ready", () => {
     window = new BrowserWindow({ 
@@ -67,11 +70,17 @@ ipcMain.on("setLocation", (event, arg) => {
 });
 
 ipcMain.on("fetchQueue", (event, arg) => {
-    sendQueue();
+    if (!indexingInProgress)
+        sendQueue();
+    else
+        queueRequested = true;
 });
 
 ipcMain.on("fetchTracks", (event, arg) => {
-    sendTracks();
+    if (!indexingInProgress)
+        sendTracks();
+    else
+        tracksRequested = true;        
 });
 
 ipcMain.on("fetchFile", (event, arg) => {
@@ -136,12 +145,13 @@ async function checkIndexRequired () {
 
 async function indexLibrary(path) {
     console.log(`Indexing ${path}`);
+    indexingInProgress = true;
     
     var regex = /^.*\.(mp3|flac|aac)$/;
     if (fs.existsSync(path)) {
         var files = fs.readdirSync(path);
         for (i = 0; i <= files.length - 1; i++) {
-            var file = files[i]
+            var file = files[i];
             if (regex.exec(file)) {
                 await indexTrack(path + `/${file}`);
             }
@@ -153,7 +163,18 @@ async function indexLibrary(path) {
         }
     }
 
+    indexingInProgress = false
     console.log ("Finished indexing");
+
+    if (queueRequested){
+        sendQueue();
+        queueRequested = false;
+    }
+     
+    if (tracksRequested) {
+        sendTracks();
+        tracksRequested = false;
+    }
 
     fetchSongs();
 }
@@ -199,7 +220,7 @@ async function fetchSongs () {
         ORDER BY S.Artist, S.Album`
     );
 
-    sendQueue();
+    return queue;
 }
 
 async function checkArtistExists (artist) {
@@ -315,12 +336,15 @@ async function createSong (songData, path) {
 
             await repository.run(`INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`, song);
             var query = `INSERT INTO Song(Id, Title, Album, Artist, TrackNumber, Duration, PlayCount, Location) VALUES("${uuidv1()}", "${songData.tags.title}", "${album.Id}", "${artist.Id}", "${songData.tags.track}", 0, 0, "${path}")`;
+
+            console.log (`Created Song: ${songData.tags.title}`);
             return song;
         }
     }
 }
 
-function sendQueue () {
+async function sendQueue () {
+    queue = await fetchSongs();
     window.webContents.send("queueFetched", queue);
 }
 
