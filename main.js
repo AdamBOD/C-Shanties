@@ -359,6 +359,7 @@ async function minimiseImage (albumArtData, format, length) {
         var bitmap = fs.readFileSync("./src/electron/finished/temp.jpg");
     
         fs.unlinkSync("./src/electron/finished/temp.jpg");
+        fs.unlinkSync(tempFilePath);
     
         return btoa(bitmap);
     }
